@@ -8,9 +8,6 @@ export default function App() {
   const [page, setPage] = useState("home")
   return ( page === "graph" ? 
     <Graph goHome={() => setPage("home") }/> : 
-    page === "schedule" ? 
-    :
-
     <View style={styles.container}>
       <Text>Open up App.js to start working on your app!</Text>
       <StatusBar style="auto" />
