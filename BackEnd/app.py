@@ -14,7 +14,7 @@ def getSystemWidePrices():
 
 #https://www.ercot.com/api/1/services/read/dashboards/combine-wind-solar.json
 @app.route("/getCombinedWindandSolar", methods = ["GET"])
-def getSystemWidePrices():
+def getCombinedWindandSolar():
     if(request.method == "GET"):
         url = "https://www.ercot.com/api/1/services/read/dashboards/combine-wind-solar.json"
         response = urlopen(url)

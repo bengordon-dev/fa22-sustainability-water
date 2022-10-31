@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Graph from './pages/Graph';
 
 export default function App() {
-
+  
   const [page, setPage] = useState("home")
   return ( page === "graph" ? 
     <Graph goHome={() => setPage("home") }/> : 
