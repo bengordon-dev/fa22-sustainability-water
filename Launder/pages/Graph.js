@@ -5,7 +5,7 @@ const customData = require('../sample-data.json');
 export default function Graph(props) {
   return (
     <View style={styles.container}>
-      <Text>graph graph graph</Text>
+      <Text>graph graph graph graph</Text>
       <Button
         onPress={props.goHome}
         title="Go home"
