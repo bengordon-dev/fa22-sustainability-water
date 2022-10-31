@@ -9,7 +9,7 @@ export default function App() {
   return ( page === "graph" ?     
     <Graph goHome={() => setPage("home") }/> : 
     page === "schedule" ? 
-    <Schedule goHome={() => setPage("schedule")}/> :
+    <Schedule goHome={() => setPage("home")}/> :
     <View style={styles.container}>
       <Text>Open up App.js to start working on your app!</Text>
       <StatusBar style="auto" />
