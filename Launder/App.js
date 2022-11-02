@@ -9,7 +9,7 @@ export default function App() {
   return ( page === "graph" ? 
     <Graph goHome={() => setPage("home") }/> : 
     <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
+      <Text>Launder</Text>
       <StatusBar style="auto" />
       <Button
         onPress={() => setPage("graph")}
@@ -20,6 +20,7 @@ export default function App() {
     </View>
 
   );
+
 }
 
 const styles = StyleSheet.create({
