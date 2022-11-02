@@ -1,9 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Button } from 'react-native';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Graph from './pages/Graph';
 
 export default function App() {
+  
   const [page, setPage] = useState("home")
   return ( page === "graph" ? 
     <Graph goHome={() => setPage("home") }/> : 
@@ -17,6 +18,7 @@ export default function App() {
       />
 
     </View>
+
   );
 
 }
