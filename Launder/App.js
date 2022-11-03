@@ -2,6 +2,7 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, Button } from "react-native";
 import { useState, useEffect } from "react";
 import Graph from "./pages/Graph";
+import OpenScreen from "./pages/openScreen";
 import Schedule from "./pages/Schedule";
 
 export default function App() {
@@ -11,20 +12,7 @@ export default function App() {
   ) : page === "schedule" ? (
     <Schedule goHome={() => setPage("home")} />
   ) : (
-    <View style={styles.container}>
-      <Text>Launder</Text>
-      <StatusBar style="auto" />
-      <Button
-        onPress={() => setPage("schedule")}
-        title="Go to schedule"
-        color="#841584"
-      />
-      <Button
-        onPress={() => setPage("graph")}
-        title="Go to graph"
-        color="#841584"
-      />
-    </View>
+    <OpenScreen setPage={setPage} />
   );
 }
 
