@@ -1,11 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, Button } from "react-native";
-<<<<<<< HEAD
 import { useState, useEffect } from "react";
 import Svg, { Rect, Circle, Line } from "react-native-svg";
-=======
-const customData = require("../sample-data.json");
->>>>>>> 3174108 (openscreen)
 
 export default function Graph(props) {
   const [graphData, setGraphData] = useState({});
@@ -47,7 +43,6 @@ export default function Graph(props) {
 
   return (
     <View style={styles.container}>
-<<<<<<< HEAD
       <Button onPress={props.goHome} title="Go home" color="#841584" />
       <Button
         title={day === "damSppData" ? "Day Ahead data" : "Real-time data"}
@@ -116,11 +111,6 @@ export default function Graph(props) {
         {points.length > 0 &&
           new Date(points[points.length - 1].timeStamp - 1000).toTimeString()}
       </Text>
-=======
-      <Text>graph graph graph graph</Text>
-      <Button onPress={props.goHome} title="Go home" color="#841584" />
-      <Text>{customData.lastUpdated}</Text>
->>>>>>> 3174108 (openscreen)
     </View>
   );
 }

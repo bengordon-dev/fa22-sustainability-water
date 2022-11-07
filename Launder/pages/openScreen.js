@@ -17,21 +17,22 @@ export default function OpenScreen(props) {
         <Button
           onPress={() => props.setPage("schedule")}
           title="Schedule"
-          color="#841584"
+          color="#ffffff"
         />
       </View>
       <View style={styles.energyDataButton}>
         <Button
           onPress={() => props.setPage("graph")}
           title="Energy Data"
-          color="#841584"
+          color="#ffffff"
         />
       </View>
       <View style={styles.myInfoButton}>
         <Button
-          onPress={() => console.log("myInfoPage")}
+          onPress={() => props.setPage("myinfo")}
+          //onPress={() => console.log("myInfoPage")}
           title="My Info"
-          color="#841584"
+          color="#ffffff"
         />
       </View>
       <StatusBar style="auto" />

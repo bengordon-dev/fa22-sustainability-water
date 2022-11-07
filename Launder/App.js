@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Graph from "./pages/Graph";
 import OpenScreen from "./pages/openScreen";
 import Schedule from "./pages/Schedule";
+import MyInfo from "./pages/myInfo";
 
 export default function App() {
   const [page, setPage] = useState("home");
@@ -11,6 +12,8 @@ export default function App() {
     <Graph goHome={() => setPage("home")} />
   ) : page === "schedule" ? (
     <Schedule goHome={() => setPage("home")} />
+  ) : page === "myinfo" ? (
+    <MyInfo goHome={() => setPage("home")} />
   ) : (
     <OpenScreen setPage={setPage} />
   );
