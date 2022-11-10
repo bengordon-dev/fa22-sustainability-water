@@ -7,8 +7,11 @@ import Schedule from './pages/Schedule';
 export default function App() {
   
   const [page, setPage] = useState("home")
+  const [availability, setAvailability] = useState([[480, 180], [780, 120]])
+
+
   return ( page === "graph" ?     
-    <Graph goHome={() => setPage("home") }/> : 
+    <Graph availability={availability} goHome={() => setPage("home") }/> : 
     page === "schedule" ? 
     <Schedule goHome={() => setPage("home")}/> :
     <View style={styles.container}>

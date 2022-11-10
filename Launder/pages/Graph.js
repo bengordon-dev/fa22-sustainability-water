@@ -16,6 +16,7 @@ export default function Graph(props) {
   const [maxRenewProd, setMaxRenewProd] = useState(1)
   
   useEffect(() => {
+    console.log(props.availability)
     fetch("http://127.0.0.1:5000/getSystemWidePrices").then((res) => res.json())
     .then((res) => {
       setGraphData(res)
@@ -99,6 +100,8 @@ export default function Graph(props) {
           {[...Array(13).keys()].map(e => <SVGText x={20 + e/13*150 + 150/48} y={110} fill="black" fontSize="5">{e*2}</SVGText>)}
           <SVGText x={10} y={100} fill="black" fontSize="5">{0}</SVGText>
           <SVGText x={5} y={5} fill="black" fontSize="5">{maxPrice}</SVGText>
+          {props.availability.length > 0 && props.availability.map((interval, i) => <Rect x={20 + interval[0]/1440*150} y={0} height={100} fill="blue" opacity=".1" width={interval[1]/1440*150}></Rect>)}
+
         </Svg>
       </View>
       <Text>High: {Math.max(...points.map(e => e.price))}</Text>
@@ -123,6 +126,7 @@ export default function Graph(props) {
           {[...Array(13).keys()].map(e => <SVGText x={20 + e/13*150 + 150/48} y={110} fill="black" fontSize="5">{e*2}</SVGText>)}
           <SVGText x={10} y={100} fill="black" fontSize="5">{0}</SVGText>
           <SVGText x={5} y={5} fill="black" fontSize="5">{maxRenewProd}</SVGText>
+          {props.availability.length > 0 && props.availability.map((interval, i) => <Rect x={20 + interval[0]/1440*150} y={0} height={100} fill="blue" opacity=".1" width={interval[1]/1440*150}></Rect>)}
         </Svg>
       </View>
     </ScrollView>
