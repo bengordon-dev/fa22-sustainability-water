@@ -12,4 +12,11 @@ def getSystemWidePrices():
         data_json = json.loads(response.read())
         return data_json
 
-#
+#https://www.ercot.com/api/1/services/read/dashboards/combine-wind-solar.json
+@app.route("/getCombinedWindandSolar", methods = ["GET"])
+def getCombinedWindandSolar():
+    if(request.method == "GET"):
+        url = "https://www.ercot.com/api/1/services/read/dashboards/combine-wind-solar.json"
+        response = urlopen(url)
+        data_json = json.loads(response.read())
+        return data_json
