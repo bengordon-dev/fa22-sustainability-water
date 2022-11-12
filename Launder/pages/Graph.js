@@ -79,9 +79,8 @@ export default function Graph(props) {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Button
-        onPress={props.goHome}
-        title="Go home"
-        color="#841584"
+        title={day === "damSppData" ? "Day Ahead data" : "Real-time data"}
+        onPress={() => setDay(day == "damSppData" ? "rtSppData" : "damSppData")}
       />
       <View width="100%" height={400} alignItems="center" justifyContent="center">
         <Svg height="100%" width="90%" viewBox="0 0 170 120" >

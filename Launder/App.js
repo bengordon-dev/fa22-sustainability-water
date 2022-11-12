@@ -1,43 +1,31 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button } from 'react-native';
+import { StatusBar } from "expo-status-bar";
+import { StyleSheet, Text, View, Button } from "react-native";
 import { useState, useEffect } from "react";
-import Graph from './pages/Graph';
-import Schedule from './pages/Schedule';
+import Graph from "./pages/Graph";
+import OpenScreen from "./pages/openScreen";
+import Schedule from "./pages/Schedule";
+import MyInfo from "./pages/myInfo";
 
 export default function App() {
-  
-  const [page, setPage] = useState("home")
+  const [page, setPage] = useState("home");
+  const [freeIntervals, setFreeIntervals] = useState([])
   const [availability, setAvailability] = useState([[480, 180], [780, 120]])
-
-
-  return ( page === "graph" ?     
-    <Graph availability={availability} goHome={() => setPage("home") }/> : 
-    page === "schedule" ? 
-    <Schedule goHome={() => setPage("home")}/> :
-    <View style={styles.container}>
-      <Text>Launder</Text>
-      <StatusBar style="auto" />
-      <Button
-        onPress={() => setPage("schedule")}
-        title="Go to schedule"
-        color="#841584"
-      />
-      <Button
-        onPress={() => setPage("graph")}
-        title="Go to graph"
-        color="#841584"
-      />
-    </View>
-
+  return page === "graph" ? (
+    <Graph availability={availability} goHome={() => setPage("home") }/>
+  ) : page === "schedule" ? (
+    <Schedule goHome={() => setPage("home")} />
+  ) : page === "myinfo" ? (
+    <MyInfo goHome={() => setPage("home")} freeIntervals={freeIntervals} setFreeIntervals={setFreeIntervals}/>
+  ) : (
+    <OpenScreen setPage={setPage} />
   );
-
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
