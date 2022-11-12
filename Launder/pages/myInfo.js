@@ -1,18 +1,17 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, Button } from "react-native";
-function myInfo(props) {
+
+export default function myInfo(props) {
   return (
     <View style={styles.container}>
       <Text>My Free Hours</Text>
-      <Text>Wash time</Text>
+      <Text>Wash Time</Text>
       <Text>Dry Time</Text>
       <Text>Location</Text>
       <Button onPress={props.goHome} title="Go home" />
     </View>
   );
 }
-
-export default myInfo;
 
 const styles = StyleSheet.create({
   container: {
