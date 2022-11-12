@@ -28,15 +28,23 @@ export default function Graph(props) {
   // change the points after the graph data gets changed 
   useEffect(() => {
     if (graphData.rtSppData && graphData.damSppData) {
-      let newRTPoints = [...graphData.rtSppData.map(e => ({
-        timeStamp: e.interval,
-        price: e[region]
-      }))]
-      let maxTimeStamp = Math.max(...newRTPoints.map(e => e.timeStamp))
-      let newDAMPoints = [...graphData.damSppData.map(e => ({
-          timeStamp: e.interval,
+      let newRTPoints = [...graphData.rtSppData.map(e => {
+        const now = new Date(e.interval)
+        const hoursElapsed = (e.interval - (e.interval - 1000*(now.getHours()*3600 + now.getMinutes()*60 + now.getSeconds() ))) / 3600000 
+        return ({
+          hoursElapsed: hoursElapsed,
           price: e[region]
-        })).filter(e => e.timeStamp > maxTimeStamp)
+        })}
+      )]
+      let maxTimeStamp = Math.max(...newRTPoints.map(e => e.hoursElapsed))
+      let newDAMPoints = [...graphData.damSppData.map(e => {
+        const now = new Date(e.interval)
+        const hoursElapsed = (e.interval - (e.interval - 1000*(now.getHours()*3600 + now.getMinutes()*60 + now.getSeconds() ))) / 3600000 
+        return ({
+          hoursElapsed: hoursElapsed,
+          price: e[region]
+        })}
+      ).filter(e => e.hoursElapsed > maxTimeStamp)
       ]
       setPoints([...newRTPoints, ...newDAMPoints])
     }
@@ -69,13 +77,14 @@ export default function Graph(props) {
         }  
         //console.log(newRenewData)
       }
-      //console.log(newRenewData)
+      console.log(newRenewData)
       setRenewPoints(newRenewData)
       setMaxRenewProd(1 + Math.max(...newRenewData.map(e => e.combined)))
     } 
   }, [renewData, day])
 
   useEffect(() => { 
+    console.log(points)
     points.length > 0 && setMaxPrice(Math.max(...points.map(e => e.price)))
   }, [points])
   
@@ -88,10 +97,10 @@ export default function Graph(props) {
             <Line x1="20" y1="100" x2="170" y2="100" stroke="black" strokeWidth="2" />
             <Line x1="21" y1="0" x2="21" y2="100" stroke="black" strokeWidth="2" />
             {points.length > 0 && points.map((point, i) => {
-                const now = new Date(point.timeStamp)
-                const hoursElapsed = (point.timeStamp - (point.timeStamp - 1000*(now.getHours()*3600 + now.getMinutes()*60 + now.getSeconds() ))) / 3600000 
+                //const now = new Date(point.timeStamp)
+                //const hoursElapsed = (point.timeStamp - (point.timeStamp - 1000*(now.getHours()*3600 + now.getMinutes()*60 + now.getSeconds() ))) / 3600000 
                 //console.log(hoursElapsed)
-                return (<Circle cx={20 + /*(point.timeStamp-firstTime)/(lastTime-firstTime)*/hoursElapsed/24*150} 
+                return (<Circle cx={20 + point.hoursElapsed/24*150} 
                         cy={100-(point.price)/(maxPrice)*100} 
                         r={.5} key={i} fill="red">
                         </Circle>) 
