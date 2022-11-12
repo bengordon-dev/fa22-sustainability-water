@@ -13,8 +13,8 @@ import AvailabilitySelector from "../components/AvailabilitySelector";
 
 export default function myInfo(props) {
   const [availabilityShown, showAvailability] = useState(false);
-  const [number, onChangeNumber] = React.useState(null);
-  const [number2, onChangeNumber2] = React.useState(null);
+  //const [number, onChangeNumber] = React.useState(null);
+  //const [number2, onChangeNumber2] = React.useState(null);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -31,17 +31,21 @@ export default function myInfo(props) {
       )}
       <Text>Wash Time (Minutes)</Text>
       <TextInput
+        setWashTime={props.setWashTime}
+        washTime={props.washTime}
         style={styles.input}
-        onChangeText={onChangeNumber}
-        value={number}
+        onChangeText={props.setWashTime}
+        value={props.washTime}
         placeholder="WashTime"
         keyboardType="numeric"
       />
       <Text>Dry Time (Minutes)</Text>
       <TextInput
+        setDryTime={props.setDryTime}
+        dryTime={props.dryTime}
         style={styles.input}
-        onChangeText={onChangeNumber2}
-        value={number2}
+        onChangeText={props.setDryTime}
+        value={props.dryTime}
         placeholder="DryTime"
         keyboardType="numeric"
       />
