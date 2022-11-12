@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, ScrollView, Button } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Button, SafeAreaView } from 'react-native';
 import { useState, useEffect } from 'react';
 import Svg, { Rect, Circle, Line } from 'react-native-svg';
 import { Text as SVGText }  from 'react-native-svg';
@@ -16,7 +16,7 @@ export default function Graph(props) {
   const [maxRenewProd, setMaxRenewProd] = useState(1)
   
   useEffect(() => {
-    console.log(props.availability)
+    //console.log(props.availability)
     fetch("http://127.0.0.1:5000/getSystemWidePrices").then((res) => res.json())
     .then((res) => {
       setGraphData(res)
@@ -43,7 +43,7 @@ export default function Graph(props) {
   }, [graphData])
 
   useEffect(() => {
-
+   // console.log("here")
     if (renewData[day]) {
       let newRenewData = []
       if (day === "currentDay") {
@@ -61,14 +61,17 @@ export default function Graph(props) {
       } else {
         for (const hrEntry of Object.entries(renewData[day].data)) {
           const hourEntry = hrEntry[1]
+          //console.log(hourEntry)
+
           let entry = {hour: hourEntry.hourEnding}
-          entry.combined = hourEntry.copHslSolarDayAhead + hourEntry.copHslWindDayAhead
+          entry.combined = hourEntry.copHslSolar + hourEntry.copHslWind
           newRenewData.push(entry)
         }  
+        //console.log(newRenewData)
       }
-      console.log(newRenewData)
+      //console.log(newRenewData)
       setRenewPoints(newRenewData)
-      setMaxRenewProd(Math.max(...newRenewData.map(e => e.combined)))
+      setMaxRenewProd(1 + Math.max(...newRenewData.map(e => e.combined)))
     } 
   }, [renewData, day])
 
@@ -77,58 +80,57 @@ export default function Graph(props) {
   }, [points])
   
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Button
-        title={day === "damSppData" ? "Day Ahead data" : "Real-time data"}
-        onPress={() => setDay(day == "damSppData" ? "rtSppData" : "damSppData")}
-      />
-      <View width="100%" height={400} alignItems="center" justifyContent="center">
-        <Svg height="100%" width="90%" viewBox="0 0 170 120" >
-          <Line x1="20" y1="100" x2="170" y2="100" stroke="black" strokeWidth="2" />
-          <Line x1="21" y1="0" x2="21" y2="100" stroke="black" strokeWidth="2" />
-          {points.length > 0 && points.map((point, i) => {
-              const now = new Date(point.timeStamp)
-              const hoursElapsed = (point.timeStamp - (point.timeStamp - 1000*(now.getHours()*3600 + now.getMinutes()*60 + now.getSeconds() ))) / 3600000 
-              //console.log(hoursElapsed)
-              return (<Circle cx={20 + /*(point.timeStamp-firstTime)/(lastTime-firstTime)*/hoursElapsed/24*150} 
-                      cy={100-(point.price)/(maxPrice)*100} 
-                      r={.5} key={i} fill="red">
-                      </Circle>) 
-            }
-          )}
-          {[...Array(13).keys()].map(e => <SVGText x={20 + e/13*150 + 150/48} y={110} fill="black" fontSize="5">{e*2}</SVGText>)}
-          <SVGText x={10} y={100} fill="black" fontSize="5">{0}</SVGText>
-          <SVGText x={5} y={5} fill="black" fontSize="5">{maxPrice}</SVGText>
-          {props.availability.length > 0 && props.availability.map((interval, i) => <Rect x={20 + interval[0]/1440*150} y={0} height={100} fill="blue" opacity=".1" width={interval[1]/1440*150}></Rect>)}
+    <SafeAreaView style={{flex: 1}}>
+      <Button title="Go Home" onPress={props.goHome}></Button>
+      <ScrollView contentContainerStyle={styles.container}>
+        <View width="100%" height={400} alignItems="center" justifyContent="center">
+          <Svg height="100%" width="90%" viewBox="0 0 170 120" >
+            <Line x1="20" y1="100" x2="170" y2="100" stroke="black" strokeWidth="2" />
+            <Line x1="21" y1="0" x2="21" y2="100" stroke="black" strokeWidth="2" />
+            {points.length > 0 && points.map((point, i) => {
+                const now = new Date(point.timeStamp)
+                const hoursElapsed = (point.timeStamp - (point.timeStamp - 1000*(now.getHours()*3600 + now.getMinutes()*60 + now.getSeconds() ))) / 3600000 
+                //console.log(hoursElapsed)
+                return (<Circle cx={20 + /*(point.timeStamp-firstTime)/(lastTime-firstTime)*/hoursElapsed/24*150} 
+                        cy={100-(point.price)/(maxPrice)*100} 
+                        r={.5} key={i} fill="red">
+                        </Circle>) 
+              }
+            )}
+            {[...Array(13).keys()].map(e => <SVGText x={20 + e/13*150 + 150/48} y={110} fill="black" fontSize="5">{e*2}</SVGText>)}
+            <SVGText x={10} y={100} fill="black" fontSize="5">{0}</SVGText>
+            <SVGText x={5} y={5} fill="black" fontSize="5">{maxPrice}</SVGText>
+            {props.availability.length > 0 && props.availability.map((interval, i) => <Rect x={20 + interval[0]/1440*150} y={0} height={100} fill="blue" opacity=".1" width={interval[1]/1440*150}></Rect>)}
 
-        </Svg>
-      </View>
-      <Text>High: {Math.max(...points.map(e => e.price))}</Text>
-      <Text>Low: {Math.min(...points.map(e => e.price))}</Text>
-      <Text>First: {points.length > 0  && (new Date(points[0].timeStamp)).toTimeString()}</Text>
-      <Text>Last: {points.length > 0  && (new Date(points[points.length-1].timeStamp - 1000)).toTimeString()}</Text>
-      <Button title={day === "currentDay" ? "Current Day" : "Next Day"}
-        onPress={() => setDay(day == "currentDay" ? "nextDay" : "currentDay")}/>
+          </Svg>
+        </View>
+        <Text>High: {Math.max(...points.map(e => e.price))}</Text>
+        <Text>Low: {Math.min(...points.map(e => e.price))}</Text>
+        <Text>First: {points.length > 0  && (new Date(points[0].timeStamp)).toTimeString()}</Text>
+        <Text>Last: {points.length > 0  && (new Date(points[points.length-1].timeStamp - 1000)).toTimeString()}</Text>
+        <Button title={day === "currentDay" ? "Current Day" : "Next Day"}
+          onPress={() => setDay(day == "currentDay" ? "nextDay" : "currentDay")}/>
 
-      <View width="100%" height={400} alignItems="center" justifyContent="center">
-        <Svg height="100%" width="90%" viewBox="0 0 170 120" >
-          <Line x1="20" y1="100" x2="170" y2="100" stroke="black" strokeWidth="2" />
-          <Line x1="21" y1="0" x2="21" y2="100" stroke="black" strokeWidth="2" />
-          {renewPoints.length > 0 && renewPoints.map((point, i) => {
-              //console.log(hoursElapsed)
-              return (<Circle cx={20 + point.hour/24*150} 
-                      cy={100-(point.combined)/(maxRenewProd)*100} 
-                      r={.5} key={i} fill="red">
-                      </Circle>) 
-            }
-          )}
-          {[...Array(13).keys()].map(e => <SVGText x={20 + e/13*150 + 150/48} y={110} fill="black" fontSize="5">{e*2}</SVGText>)}
-          <SVGText x={10} y={100} fill="black" fontSize="5">{0}</SVGText>
-          <SVGText x={5} y={5} fill="black" fontSize="5">{maxRenewProd}</SVGText>
-          {props.availability.length > 0 && props.availability.map((interval, i) => <Rect x={20 + interval[0]/1440*150} y={0} height={100} fill="blue" opacity=".1" width={interval[1]/1440*150}></Rect>)}
-        </Svg>
-      </View>
-    </ScrollView>
+        <View width="100%" height={400} alignItems="center" justifyContent="center">
+          <Svg height="100%" width="90%" viewBox="0 0 170 120" >
+            <Line x1="20" y1="100" x2="170" y2="100" stroke="black" strokeWidth="2" />
+            <Line x1="21" y1="0" x2="21" y2="100" stroke="black" strokeWidth="2" />
+            {renewPoints.length > 0 && renewPoints.map((point, i) => {
+                //console.log(hoursElapsed)
+                return (<Circle cx={20 + point.hour/24*150} 
+                        cy={100-(point.combined)/(maxRenewProd)*100} 
+                        r={.5} key={i} fill="red">
+                        </Circle>) 
+              }
+            )}
+            {[...Array(13).keys()].map(e => <SVGText x={20 + e/13*150 + 150/48} y={110} fill="black" fontSize="5">{e*2}</SVGText>)}
+            <SVGText x={10} y={100} fill="black" fontSize="5">{0}</SVGText>
+            <SVGText x={5} y={5} fill="black" fontSize="5">{maxRenewProd}</SVGText>
+            {props.availability.length > 0 && props.availability.map((interval, i) => <Rect x={20 + interval[0]/1440*150} y={0} height={100} fill="blue" opacity=".1" width={interval[1]/1440*150}></Rect>)}
+          </Svg>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -137,7 +139,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: 100,
+    justifyContent: 'flex-start',
   },
 });
