@@ -8,12 +8,13 @@ import MyInfo from "./pages/myInfo";
 
 export default function App() {
   const [page, setPage] = useState("home");
+  const [freeIntervals, setFreeIntervals] = useState([])
   return page === "graph" ? (
     <Graph goHome={() => setPage("home")} />
   ) : page === "schedule" ? (
     <Schedule goHome={() => setPage("home")} />
   ) : page === "myinfo" ? (
-    <MyInfo goHome={() => setPage("home")} />
+    <MyInfo goHome={() => setPage("home")} freeIntervals={freeIntervals} setFreeIntervals={setFreeIntervals}/>
   ) : (
     <OpenScreen setPage={setPage} />
   );

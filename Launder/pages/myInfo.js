@@ -1,15 +1,22 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View, Button } from "react-native";
-
+import { StyleSheet, Text, View, Button, SafeAreaView } from "react-native";
+import { useState } from "react";
+import AvailabilitySelector from "../components/AvailabilitySelector";
 export default function myInfo(props) {
+  const [availabilityShown, showAvailability] = useState(false)
   return (
-    <View style={styles.container}>
-      <Text>My Free Hours</Text>
-      <Text>Wash Time</Text>
+    <SafeAreaView style={styles.container}>
+      <Text onPress={() => showAvailability(!availabilityShown)}>My Free Hours</Text>
+      {availabilityShown && <View style={{height: 500}}><AvailabilitySelector 
+                              freeIntervals={props.freeIntervals}
+                              setFreeIntervals={props.setFreeIntervals}
+                            /></View>
+      }
+      <Text>Wash time</Text>
       <Text>Dry Time</Text>
       <Text>Location</Text>
       <Button onPress={props.goHome} title="Go home" />
-    </View>
+    </SafeAreaView>
   );
 }
 
