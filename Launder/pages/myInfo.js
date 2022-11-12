@@ -2,7 +2,7 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, Button, SafeAreaView } from "react-native";
 import { useState } from "react";
 import AvailabilitySelector from "../components/AvailabilitySelector";
-function myInfo(props) {
+export default function myInfo(props) {
   const [availabilityShown, showAvailability] = useState(false)
   return (
     <SafeAreaView style={styles.container}>
@@ -19,8 +19,6 @@ function myInfo(props) {
     </SafeAreaView>
   );
 }
-
-export default myInfo;
 
 const styles = StyleSheet.create({
   container: {

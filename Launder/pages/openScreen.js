@@ -1,18 +1,22 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View, Image, Button } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  Button,
+  ImageBackground,
+} from "react-native";
 import { useState, useEffect } from "react";
 
 export default function OpenScreen(props) {
   return (
-    <View style={styles.container}>
-      {/*  <Text>Per MWh</Text> */}
-      <View style={styles.logoContainer}>
-        <Image
-          style={styles.logo}
-          source={require("../assets/launderLogo.jpg")}
-        />
-        <Text>Launder</Text>
-      </View>
+    <ImageBackground
+      style={styles.container}
+      source={require("../assets/BackOpenScreen.jpg")}
+      // make svg > ../assets/OpenScreenBackground.svg
+    >
+      {/*  Add price <Text>Per MWh</Text> */}
       <View style={styles.scheduleButton}>
         <Button
           onPress={() => props.setPage("schedule")}
@@ -36,32 +40,23 @@ export default function OpenScreen(props) {
         />
       </View>
       <StatusBar style="auto" />
-    </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    // backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
   },
-  logoContainer: {
-    position: "absolute",
-    bottom: 60,
-    left: 100,
-    alignItems: "center",
-  },
-  logo: {
-    width: 200,
-    height: 200,
-  },
+  //fix button texts
   scheduleButton: {
     backgroundColor: "lightgreen",
     width: 290,
     height: 70,
-    bottom: -10,
+    bottom: -50,
     borderTopLeftRadius: 50,
     borderTopRightRadius: 50,
     borderBottomLeftRadius: 50,
@@ -71,7 +66,7 @@ const styles = StyleSheet.create({
     backgroundColor: "green",
     width: 290,
     height: 70,
-    bottom: -35,
+    bottom: -75,
     borderTopLeftRadius: 50,
     borderTopRightRadius: 50,
     borderBottomLeftRadius: 50,
@@ -81,7 +76,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#0D305C",
     width: 290,
     height: 70,
-    bottom: -60,
+    bottom: -100,
     borderTopLeftRadius: 50,
     borderTopRightRadius: 50,
     borderBottomLeftRadius: 50,
