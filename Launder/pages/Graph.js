@@ -51,13 +51,11 @@ export default function Graph(props) {
   }, [graphData])
 
   useEffect(() => {
-   // console.log("here")
     if (renewData[day]) {
       let newRenewData = []
       if (day === "currentDay") {
         for (const hrEntry of Object.entries(renewData[day].data)) {
           const hourEntry = hrEntry[1]
-          //console.log(hourEntry)
           let entry = {hour: hourEntry.hourEnding}
           if (hourEntry.actualWind && hourEntry.actualSolar) {
             entry.combined = hourEntry.actualWind + hourEntry.actualSolar
@@ -69,13 +67,10 @@ export default function Graph(props) {
       } else {
         for (const hrEntry of Object.entries(renewData[day].data)) {
           const hourEntry = hrEntry[1]
-          //console.log(hourEntry)
-
           let entry = {hour: hourEntry.hourEnding}
           entry.combined = hourEntry.copHslSolar + hourEntry.copHslWind
           newRenewData.push(entry)
         }  
-        //console.log(newRenewData)
       }
       console.log(newRenewData)
       setRenewPoints(newRenewData)
