@@ -13,8 +13,9 @@ export default function App() {
     [480, 180],
     [780, 120],
   ]);
-  const [washTime, setWashTime] = React.useState(0);
-  const [dryTime, setDryTime] = React.useState(0);
+  const [washTime, setWashTime] = useState(0);
+  const [dryTime, setDryTime] = useState(0);
+
   return page === "graph" ? (
     <Graph availability={availability} goHome={() => setPage("home")} />
   ) : page === "schedule" ? (

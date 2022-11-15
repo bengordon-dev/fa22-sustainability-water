@@ -1,12 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import {
-  StyleSheet,
-  Text,
-  View,
-  ScrollView,
-  Button,
-  SafeAreaView,
-} from "react-native";
+import { StyleSheet, Text, View, ScrollView, Button, SafeAreaView} from "react-native";
 import { useState, useEffect } from "react";
 import Svg, { Rect, Circle, Line } from "react-native-svg";
 import { Text as SVGText } from "react-native-svg";
