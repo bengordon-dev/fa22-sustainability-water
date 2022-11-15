@@ -145,7 +145,7 @@ export default function AvailabilitySelector(props) {
         )
       })}
     </ScrollView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
