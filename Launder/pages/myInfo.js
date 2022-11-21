@@ -8,7 +8,7 @@ import {
   SafeAreaView,
   TextInput,
 } from "react-native";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AvailabilitySelector from "../components/AvailabilitySelector";
 
 export default function myInfo(props) {
@@ -16,16 +16,24 @@ export default function myInfo(props) {
   //const [number, onChangeNumber] = React.useState(null);
   //const [number2, onChangeNumber2] = React.useState(null);
 
+  useEffect(() => {
+    const time = new Date()
+    props.setNowInterval(Math.floor((time.getHours()*60 + time.getMinutes()) / 30))
+  }, [])
+
+
   return (
     <SafeAreaView style={styles.container}>
       <Text onPress={() => showAvailability(!availabilityShown)}>
         My Free Hours
       </Text>
       {availabilityShown && (
-        <View style={{ height: 500 }}>
+        <View style={{ maxHeight: 500, minHeight: 300 }}>
           <AvailabilitySelector
             freeIntervals={props.freeIntervals}
             setFreeIntervals={props.setFreeIntervals}
+            nowInterval={props.nowInterval}
+            setNowInterval={props.setNowInterval}
           />
         </View>
       )}
@@ -60,7 +68,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start",
   },
   input: {
     height: 40,

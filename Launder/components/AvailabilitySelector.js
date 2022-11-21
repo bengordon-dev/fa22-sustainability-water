@@ -3,6 +3,12 @@ import { useState, useEffect } from "react";
 
 export default function AvailabilitySelector(props) {
   const [selectedSectors, setSelectedSectors] = useState([])
+
+  useEffect(() => {
+    const time = new Date()
+    props.setNowInterval(Math.floor((time.getHours()*60 + time.getMinutes()) / 30))
+  }, [])
+
   useEffect(() => {
     let newSectors = []
     props.freeIntervals && props.freeIntervals.length > 0 
@@ -126,17 +132,17 @@ export default function AvailabilitySelector(props) {
   return (
     <ScrollView contentContainerStyle={styles.container}>
 
-      {[...Array(24*2).keys()].map((e, i) => {
+      {[...Array(24*2 - props.nowInterval).keys()].map((e, i) => {
         const time = new Date()
-        time.setHours(Math.floor(e*30 / 60))
-        time.setMinutes(e*30 % 60)
+        time.setHours(Math.floor((e + props.nowInterval)*30 / 60))
+        time.setMinutes((e + props.nowInterval)*30 % 60)
         let timeString = time.toTimeString().split(" ")[0]
         timeString = timeString.substring(0, timeString.length - 3)
         return (
         <View style={{width: "100%", flexDirection: "row"}} key={i}>
           <Text style={{width: "20%"}}>{timeString}</Text>
-          <TouchableOpacity style={{width: "80%", height: 20, backgroundColor: selectedSectors.includes(i) ? "#9f9" : "#999"}} 
-                onPress={() => pressSector(i) /*{
+          <TouchableOpacity style={{width: "80%", height: 20, backgroundColor: selectedSectors.includes(e + props.nowInterval) ? "#9f9" : "#999"}} 
+                onPress={() => pressSector(e + props.nowInterval) /*{
                         selectedSectors.includes(i) ? 
                         setSelectedSectors([...selectedSectors.filter(sector => sector !== i)])
                 : setSelectedSectors([...selectedSectors, i])}*/}>
