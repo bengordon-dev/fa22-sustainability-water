@@ -12,13 +12,17 @@ export default function App() {
   const [availability, setAvailability] = useState([
     [480, 180],
     [780, 120],
-  ]);
+  ]); // current day 
+  const [nextAvailability, setNextAvailability] = useState([]) // next day 
   const [washTime, setWashTime] = useState(0);
   const [dryTime, setDryTime] = useState(0);
+  const [washPower, setWashPower] = useState(850);
+  const [dryPower, setDryPower] = useState(4000)
   const [graphData, setGraphData] = useState({});
   const [renewData, setRenewData] = useState({});
   const [points, setPoints] = useState([]);
-  const [renewPoints, setRenewPoints] = useState([]);
+  const [renewPoints, setRenewPoints] = useState([]); // current day
+  const [nextRenewPoints, setNextRenewPoints] = useState([]) // next day 
   const [day, setDay] = useState("currentDay"); // damSppData or rtSppData
   const [region, setRegion] = useState("lzLcra");
 
@@ -26,31 +30,30 @@ export default function App() {
   const [nowInterval, setNowInterval] = useState(0) 
 
   useEffect(() => {
-    if (renewData[day]) {
+    if (renewData["currentDay"] && renewData["nextDay"]) {
       let newRenewData = [];
-      if (day === "currentDay") {
-        for (const hrEntry of Object.entries(renewData[day].data)) {
-          const hourEntry = hrEntry[1]
-          let entry = {hour: hourEntry.hourEnding}
-          if (hourEntry.actualWind && hourEntry.actualSolar) {
-            entry.combined = hourEntry.actualWind + hourEntry.actualSolar;
-          } else {
-            entry.combined = hourEntry.copHslWind + hourEntry.copHslSolar;
-          }
-          newRenewData.push(entry);
+      let newNextRenewData = []
+      for (const hrEntry of Object.entries(renewData["currentDay"].data)) {
+        const hourEntry = hrEntry[1]
+        let entry = {hour: hourEntry.hourEnding}
+        if (hourEntry.actualWind && hourEntry.actualSolar) {
+          entry.combined = hourEntry.actualWind + hourEntry.actualSolar;
+        } else {
+          entry.combined = hourEntry.copHslWind + hourEntry.copHslSolar;
         }
-      } else {
-        for (const hrEntry of Object.entries(renewData[day].data)) {
-          const hourEntry = hrEntry[1]
-          let entry = {hour: hourEntry.hourEnding}
-          entry.combined = hourEntry.copHslSolar + hourEntry.copHslWind
-          newRenewData.push(entry)
-        }  
+        newRenewData.push(entry);
       }
+      for (const hrEntry of Object.entries(renewData["nextDay"].data)) {
+        const hourEntry = hrEntry[1]
+        let entry = {hour: hourEntry.hourEnding}
+        entry.combined = hourEntry.copHslSolar + hourEntry.copHslWind
+        newNextRenewData.push(entry)
+      }  
       //console.log(newRenewData)
       setRenewPoints(newRenewData)
+      setNextRenewPoints(newNextRenewData)
     } 
-  }, [renewData, day])
+  }, [renewData])
 
 
   useEffect(() => {
@@ -91,35 +94,44 @@ export default function App() {
     }
   }, [graphData]);
 
-
-  useEffect(() => {
-    console.log(availability)
-  }, [availability])
-
   return page === "graph" ? (
-    <Graph availability={availability} setPage={setPage}
+    <Graph availability={day === "currentDay" ? availability : nextAvailability} 
+      setPage={setPage}
       points={points.filter(e => Math.floor(e.hoursElapsed*2) >= (day === "currentDay" ? nowInterval : 0))} 
-      renewPoints={renewPoints.filter(e => Math.floor(e.hour*2) >= (day === "currentDay" ? nowInterval : 0))} 
+      renewPoints={
+        day === "currentDay" ? renewPoints.filter(e => Math.floor(e.hour*2) >= nowInterval) 
+        : nextRenewPoints
+      } 
       day={day} setDay={setDay}
       nowInterval={day === "currentDay" ? nowInterval : 0}
       setNowInterval={setNowInterval}
     />
   ) : page === "schedule" ? (
-    <Schedule goHome={() => setPage("home")} />
+    <Schedule goHome={() => setPage("home")} 
+      points={points} 
+      renewPoints={renewPoints.filter(e => Math.floor(e.hour*2) >= nowInterval)} 
+      nextRenewPoints={nextRenewPoints}
+      day={day} setDay={setDay}
+      nowInterval={nowInterval} setNowInterval={setNowInterval}
+      washTime={washTime} washPower={washPower}
+      dryTime={dryTime} dryPower={dryPower}
+
+    />
   ) : page === "myinfo" ? (
     <MyInfo
       goHome={() => setPage("home")}
-      freeIntervals={availability}
-      setFreeIntervals={setAvailability}
-      washTime={washTime}
-      dryTime={dryTime}
-      setWashTime={setWashTime}
-      setDryTime={setDryTime}
-      nowInterval={nowInterval}
+      freeIntervals={day === "currentDay" ? availability : nextAvailability}
+      setFreeIntervals={day === "currentDay" ? setAvailability : setNextAvailability}
+      washTime={washTime} washPower={washPower}
+      dryTime={dryTime} dryPower={dryPower}
+      setWashTime={setWashTime} setWashPower={setWashPower}
+      setDryTime={setDryTime} setDryPower={setDryPower}
+      nowInterval={day === "currentDay" ? nowInterval : 0}
       setNowInterval={setNowInterval}
+      day={day} setDay={setDay}
     />
   ) : (
-    <OpenScreen setPage={setPage} />
+    <OpenScreen setPage={setPage} setNowInterval={setNowInterval}/>
   );
 }
 

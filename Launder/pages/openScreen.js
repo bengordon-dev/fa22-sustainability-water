@@ -10,6 +10,11 @@ import {
 import { useState, useEffect } from "react";
 
 export default function OpenScreen(props) {
+  useEffect(() => {
+    const time = new Date()
+    props.setNowInterval(Math.floor((time.getHours()*60 + time.getMinutes()) / 30))
+  }, [])
+  
   return (
     <ImageBackground
       style={styles.container}

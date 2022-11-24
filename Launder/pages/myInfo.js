@@ -30,10 +30,11 @@ export default function myInfo(props) {
       {availabilityShown && (
         <View style={{ maxHeight: 500, minHeight: 300 }}>
           <AvailabilitySelector
+            day={props.day}
+            setDay={props.setDay}
             freeIntervals={props.freeIntervals}
             setFreeIntervals={props.setFreeIntervals}
             nowInterval={props.nowInterval}
-            setNowInterval={props.setNowInterval}
           />
         </View>
       )}
