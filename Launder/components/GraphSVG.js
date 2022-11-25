@@ -4,9 +4,10 @@ import { Text as SVGText } from "react-native-svg";
 
 export default function GraphSVG(props) {
   const hourRange = 24 - props.startHour
+
   return (
     <View width="100%" height={props.height} style={{alignItems: "center", justifyContent: "center"}}>
-      <Svg height="100%" width={props.width} viewBox="0 0 170 120" >
+      <Svg height="100%" width={props.width} viewBox="0 0 180 120" >
         <Line x1="19" y1="100" x2="170" y2="100" stroke="black" strokeWidth="2" />
         <Line x1="20" y1="0" x2="20" y2="100" stroke="black" strokeWidth="2" />
         {props.points.length > 0 && props.points.map((point, i) => {
@@ -16,7 +17,12 @@ export default function GraphSVG(props) {
                   </Circle>) 
           }
         )}
-        {[...Array(9).keys()].map(e => <SVGText key={e} x={20 + e*150/8 + 150/48} y={110} fill="black" fontSize="5">{props.startHour + e*hourRange/8}</SVGText>)}
+        {[...Array(5).keys()].map(e => {
+          const hours = props.startHour + e*hourRange/4
+          const mins = Math.round((hours - Math.floor(hours))*60)
+          return (
+            <SVGText key={e} x={12 + e*150/4 } y={110} fill="black" fontSize="5">{`${Math.floor(hours)}:${mins < 10 ? "0" : ""}${mins}`}</SVGText>
+        )})}
         <SVGText x={14} y={100} fill="black" fontSize="5">{0}</SVGText>
         <SVGText x={17 - 3*(Math.floor(props.maxVal/2)).toString().length} y={50} fill="black" fontSize="5">{Math.floor(props.maxVal/2)}</SVGText>
         <SVGText x={17 - 3*(Math.floor(props.maxVal)).toString().length} y={5} fill="black" fontSize="5">{Math.floor(props.maxVal)}</SVGText>
