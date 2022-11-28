@@ -6,15 +6,14 @@ export default function AvailabilitySelector(props) {
 
   useEffect(() => {
     let newSectors = []
-    props.freeIntervals && props.freeIntervals.length > 0 
-    && props.freeIntervals.forEach((interval) => {
+    props.freeIntervals && props.freeIntervals.forEach((interval) => {
       const firstSector = interval[0]/30
       const numSectors = interval[1]/30
       for (let i = firstSector; i < firstSector + numSectors; i++) {
         newSectors.push(i)
       }
     })
-    props.freeIntervals && props.freeIntervals.length > 0 && setSelectedSectors(newSectors)
+    props.freeIntervals && setSelectedSectors(newSectors)
   }, [props.freeIntervals])
 
   function pressSector(index) {

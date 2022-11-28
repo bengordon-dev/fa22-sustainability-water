@@ -40,25 +40,36 @@ export default function myInfo(props) {
       )}
       <Text>Wash Time (Minutes)</Text>
       <TextInput
-        setWashTime={props.setWashTime}
-        washTime={props.washTime}
         style={styles.input}
-        onChangeText={props.setWashTime}
-        value={props.washTime}
-        placeholder="WashTime"
+        onChangeText={(text) => props.setWashTime(parseInt(text))}
+        value={props.washTime.toString()}
+        placeholder="Wash Time"
         keyboardType="numeric"
       />
       <Text>Dry Time (Minutes)</Text>
       <TextInput
-        setDryTime={props.setDryTime}
-        dryTime={props.dryTime}
         style={styles.input}
-        onChangeText={props.setDryTime}
-        value={props.dryTime}
-        placeholder="DryTime"
+        onChangeText={(text) => props.setDryTime(parseInt(text))}
+        value={props.dryTime.toString()}
+        placeholder="Dry Time"
         keyboardType="numeric"
       />
-      <Text>Location</Text>
+      <Text>Washing Machine Power (Watts)</Text>
+      <TextInput
+        style={styles.input}
+        onChangeText={(text) => props.setWashPower(parseInt(text))}
+        value={props.washPower.toString()}
+        placeholder="Washer Power"
+        keyboardType="numeric"
+      />
+      <Text>Dryer Power (Watts)</Text>
+      <TextInput
+        style={styles.input}
+        onChangeText={(text) => props.setDryPower(parseInt(text))}
+        value={props.dryPower.toString()}
+        placeholder="Dryer Power"
+        keyboardType="numeric"
+      />
       <Button onPress={props.goHome} title="Go home" />
     </SafeAreaView>
   );

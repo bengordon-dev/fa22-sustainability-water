@@ -14,8 +14,8 @@ export default function App() {
     [780, 120],
   ]); // current day 
   const [nextAvailability, setNextAvailability] = useState([]) // next day 
-  const [washTime, setWashTime] = useState(0);
-  const [dryTime, setDryTime] = useState(0);
+  const [washTime, setWashTime] = useState(30);
+  const [dryTime, setDryTime] = useState(60);
   const [washPower, setWashPower] = useState(850);
   const [dryPower, setDryPower] = useState(4000)
   const [graphData, setGraphData] = useState({});
