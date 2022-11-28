@@ -31,6 +31,7 @@ export default function Graph(props) {
         <GraphSVG height={350} width={"90%"} points={props.points} 
           startHour={props.nowInterval / 2}
           availability={props.availability} maxVal={maxPrice} timeField={"hoursElapsed"} valField={"price"}
+          title={"Electricity Price ($/MWh)"}
         />
 
         <Button
@@ -41,6 +42,7 @@ export default function Graph(props) {
         <GraphSVG height={350} width={"90%"} points={props.renewPoints} 
           startHour={props.nowInterval / 2}
           availability={props.availability} maxVal={maxRenewProd} timeField={"hour"} valField={"combined"}
+          title="Wind + Solar Production (MW)"
         />
       </ScrollView>
       <Button title="Schedule" onPress={() => props.setPage("schedule")}></Button>
