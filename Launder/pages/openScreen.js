@@ -11,11 +11,6 @@ import {
 import { useState, useEffect } from "react";
 
 export default function OpenScreen(props) {
-  useEffect(() => {
-    const time = new Date()
-    props.setNowInterval(Math.floor((time.getHours()*60 + time.getMinutes()) / 30))
-  }, [])
-  
   return (
     <ImageBackground
       style={styles.container}
@@ -23,6 +18,10 @@ export default function OpenScreen(props) {
       // make svg > ../assets/OpenScreenBackground.svg
     >
       {/*  Add price <Text>Per MWh</Text> */}
+      {/* <Image
+        style={styles.logo}
+        source={require("../assets/launderLogo.jpg")}
+  />*/}
       <Pressable
         style={styles.scheduleButton}
         onPress={() => props.setPage("schedule")}
@@ -53,7 +52,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  //fix button texts
+  logo: {
+    width: 200,
+    height: 200,
+    top: -160,
+    left: -10,
+  },
   scheduleButton: {
     backgroundColor: "lightgreen",
     width: 290,
@@ -85,36 +89,39 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 50,
   },
   scheduleButtonText: {
-    fontSize: 33,
     //lineHeight: 21,
-    fontWeight: "600",
     //fontFamily: "Open Sans",
     //fontStyle:["normal", "italic"],
     //letterSpacing: 0.25,
+    fontFamily: "nunito-semibold",
+    fontSize: 36,
+    //fontWeight: "600",
     color: "white",
-    bottom: -15,
-    left: 75,
+    bottom: -10,
+    left: 70,
   },
   enerdyDataButtonText: {
-    fontSize: 33,
-    //lineHeight: 21,
-    fontWeight: "600",
     //fontFamily: "Open Sans",
     //fontStyle:["normal", "italic"],
     //letterSpacing: 0.25,
+    //lineHeight: 21,
+    fontSize: 36,
+    fontFamily: "nunito-semibold",
+    //fontWeight: "600",
     color: "white",
-    bottom: -13,
-    left: 55,
+    bottom: -10,
+    left: 45,
   },
   myInfoButtonText: {
-    fontSize: 33,
-    //lineHeight: 21,
-    fontWeight: "600",
     //fontFamily: "Open Sans",
     //fontStyle:["normal", "italic"],
     //letterSpacing: 0.25,
+    //lineHeight: 21,
+    //fontWeight: "600",
+    fontSize: 36,
+    fontFamily: "nunito-semibold",
     color: "white",
-    bottom: -12,
-    left: 90,
+    bottom: -10,
+    left: 85,
   },
 });
