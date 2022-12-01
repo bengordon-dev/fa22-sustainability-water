@@ -115,7 +115,9 @@ export default function App() {
       nowInterval={nowInterval} setNowInterval={setNowInterval}
       washTime={washTime} washPower={washPower}
       dryTime={dryTime} dryPower={dryPower}
-
+      todayAvailability={availability}
+      tomorrowAvailability={nextAvailability}
+      
     />
   ) : page === "myinfo" ? (
     <MyInfo
