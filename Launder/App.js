@@ -157,6 +157,8 @@ export default function App() {
         washPower={washPower}
         dryTime={dryTime}
         dryPower={dryPower}
+        todayAvailability={availability}
+        tomorrowAvailability={nextAvailability}
       />
     ) : page === "myinfo" ? (
       <MyInfo
