@@ -1,8 +1,14 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View, Button, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Button,
+  TouchableOpacity,
+  Image,
+} from "react-native";
 const customData = require("../sample-data.json");
 import { useState, useEffect } from "react";
-
 
 export default function Schedule(props) {
   const [daysIncluded, setDaysIncluded] = useState("today") // "today", "tomorrow", or "both"
@@ -100,32 +106,71 @@ export default function Schedule(props) {
 
 
   useEffect(() => {
-    const time = new Date()
-    props.setNowInterval(Math.floor((time.getHours()*60 + time.getMinutes()) / 30))
-  }, [])
-  
+    const time = new Date();
+    props.setNowInterval(
+      Math.floor((time.getHours() * 60 + time.getMinutes()) / 30)
+    );
+  }, []);
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Schedule</Text>
-      <View style={{flexDirection: "row", alignItems: "center", justifyContent: "flex-start", width: "100%"}}>
-        <Text style={{fontSize: 16, marginRight: 5, marginLeft: 20}}>Days included:</Text>
-        <View style={{backgroundColor: daysIncluded === "today" ? "green" : "white"}}>
-          <Button onPress={() => setDaysIncluded("today")} title="Today"
+      <TouchableOpacity
+        style={styles.backButton}
+        activeOpacity={0.5}
+        onPress={() => props.goHome()}
+      >
+        <Image
+          source={require("../assets/schedulePage_return.jpg")}
+          //style={styles.buttonImageIconStyle}
+        />
+      </TouchableOpacity>
+      <Text style={styles.title}> </Text>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "flex-start",
+          width: "100%",
+        }}
+      >
+        <Text style={{ fontSize: 16, marginRight: 5, marginLeft: 20 }}>
+          Days included:
+        </Text>
+        <View
+          style={{
+            backgroundColor: daysIncluded === "today" ? "green" : "white",
+          }}
+        >
+          <Button
+            onPress={() => setDaysIncluded("today")}
+            title="Today"
             color={daysIncluded === "today" ? "white" : "blue"}
           />
         </View>
-        <View style={{backgroundColor: daysIncluded === "tomorrow" ? "green" : "white"}}>
-          <Button onPress={() => setDaysIncluded("tomorrow")} title="Tommorrow"
+        <View
+          style={{
+            backgroundColor: daysIncluded === "tomorrow" ? "green" : "white",
+          }}
+        >
+          <Button
+            onPress={() => setDaysIncluded("tomorrow")}
+            title="Tommorrow"
             color={daysIncluded === "tomorrow" ? "white" : "blue"}
           />
         </View>
-        <View style={{backgroundColor: daysIncluded === "both" ? "green" : "white"}}>
-          <Button onPress={() => setDaysIncluded("both")} title="Both"
-           color={daysIncluded === "both" ? "white" : "blue"}
+        <View
+          style={{
+            backgroundColor: daysIncluded === "both" ? "green" : "white",
+          }}
+        >
+          <Button
+            onPress={() => setDaysIncluded("both")}
+            title="Both"
+            color={daysIncluded === "both" ? "white" : "blue"}
           />
         </View>
       </View>
-      <Button onPress={() => selectTimes()} title="Pick Times"/>
+      <Button onPress={() => selectTimes()} title="Pick Times" />
       <View style={styles.schedule}>
         <View style={styles.washDryAlign}>
 
@@ -192,7 +237,7 @@ export default function Schedule(props) {
       </View>
       <View style={styles.buttons}>
         <View style={styles.buttonOne}>
-          <Button onPress={props.goHome} title="Go home" />
+          {/*<Button onPress={props.goHome} title="Go home" />*/}
           <Button title="Remind me" />
         </View>
         <View>
@@ -258,5 +303,9 @@ const styles = StyleSheet.create({
   },
   buttonOne: {
     flexDirection: "row",
+  },
+  backButton: {
+    //flexDirection: "row",
+    left: -85,
   },
 });

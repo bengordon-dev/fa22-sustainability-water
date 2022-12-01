@@ -4,9 +4,12 @@ import {
   StyleSheet,
   Text,
   View,
+  Image,
+  TouchableOpacity,
   Button,
   SafeAreaView,
   TextInput,
+  ScrollView,
 } from "react-native";
 import { useState, useEffect } from "react";
 import AvailabilitySelector from "../components/AvailabilitySelector";
@@ -17,14 +20,29 @@ export default function myInfo(props) {
   //const [number2, onChangeNumber2] = React.useState(null);
 
   useEffect(() => {
-    const time = new Date()
-    props.setNowInterval(Math.floor((time.getHours()*60 + time.getMinutes()) / 30))
-  }, [])
-
+    const time = new Date();
+    props.setNowInterval(
+      Math.floor((time.getHours() * 60 + time.getMinutes()) / 30)
+    );
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text onPress={() => showAvailability(!availabilityShown)}>
+      <TouchableOpacity
+        style={styles.backButton}
+        activeOpacity={0.5}
+        onPress={props.goHome}
+      >
+        <Image
+          source={require("../assets/infoPage_return.jpg")}
+          //style={styles.buttonImageIconStyle}
+        />
+      </TouchableOpacity>
+      <Text> </Text>
+      <Text
+        onPress={() => showAvailability(!availabilityShown)}
+        style={styles.headers}
+      >
         My Free Hours
       </Text>
       {availabilityShown && (
@@ -38,7 +56,7 @@ export default function myInfo(props) {
           />
         </View>
       )}
-      <Text>Wash Time (Minutes)</Text>
+      <Text style={styles.headers}>Wash Time (Minutes)</Text>
       <TextInput
         style={styles.input}
         onChangeText={(text) => props.setWashTime(parseInt(text))}
@@ -46,7 +64,7 @@ export default function myInfo(props) {
         placeholder="Wash Time"
         keyboardType="numeric"
       />
-      <Text>Dry Time (Minutes)</Text>
+      <Text style={styles.headers}>Dry Time (Minutes)</Text>
       <TextInput
         style={styles.input}
         onChangeText={(text) => props.setDryTime(parseInt(text))}
@@ -54,7 +72,7 @@ export default function myInfo(props) {
         placeholder="Dry Time"
         keyboardType="numeric"
       />
-      <Text>Washing Machine Power (Watts)</Text>
+      <Text style={styles.headers}>Washing Machine Power (Watts)</Text>
       <TextInput
         style={styles.input}
         onChangeText={(text) => props.setWashPower(parseInt(text))}
@@ -62,7 +80,7 @@ export default function myInfo(props) {
         placeholder="Washer Power"
         keyboardType="numeric"
       />
-      <Text>Dryer Power (Watts)</Text>
+      <Text style={styles.headers}>Dryer Power (Watts)</Text>
       <TextInput
         style={styles.input}
         onChangeText={(text) => props.setDryPower(parseInt(text))}
@@ -70,26 +88,39 @@ export default function myInfo(props) {
         placeholder="Dryer Power"
         keyboardType="numeric"
       />
-      <Button onPress={props.goHome} title="Go home" />
+      {/* <Button onPress={props.goHome} title="Go home" /> */}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    //paddingTop: 40,
+    // paddingHorizontal: 20,
     flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "flex-start",
   },
   input: {
-    height: 40,
+    height: 50,
+    //width: 100,
     margin: 12,
     borderWidth: 1,
     padding: 10,
+    backgroundColor: "#D9D9D9",
     borderTopLeftRadius: 50,
     borderTopRightRadius: 50,
     borderBottomLeftRadius: 50,
     borderBottomRightRadius: 50,
+  },
+  backButton: {
+    //flexDirection: "row",
+    top: 10,
+    left: -100,
+  },
+  headers: {
+    fontFamily: "nunito-regular",
+    fontSize: 24,
   },
 });
