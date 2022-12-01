@@ -6,11 +6,98 @@ import { useState, useEffect } from "react";
 
 export default function Schedule(props) {
   const [daysIncluded, setDaysIncluded] = useState("today") // "today", "tomorrow", or "both"
-
+  const [timeList, setTimeList] = useState([])
   
-  function selectTimes() {
-    console.log("highly complex algorithm")
+  function displayTime(obj, time) {
+    return `${obj.day === 0 ? "Today" : "Tomorrow"} ${Math.floor(time / 60)}:${time % 60 < 10 ? "0" : ""}${time % 60}`
   }
+
+  // UNITS: $/watt
+  function priceForMinute(time) {
+
+
+    let data = props.points
+    // naive approach
+    let curTime = data[0].hoursElapsed*60;
+    let index = 0;
+    while (curTime < time) {
+      curTime = data[++index].hoursElapsed*60;
+    }
+    
+    return (data[index - 1].price + 
+      (data[index].price - data[index - 1].price) * 
+      (time - (data[index - 1].hoursElapsed*60)) / 
+      ((data[index].hoursElapsed*60) - (data[index - 1].hoursElapsed*60)))
+      / 60
+      / 1000000    
+  }
+
+  function selectTimes() {
+    let availability = []
+    if (daysIncluded === "today") {
+      availability = [...props.todayAvailability.map(e => [...e, 0])]
+    } else if (daysIncluded === "tomorrow") {
+      availability = [...props.tomorrowAvailability.map(e => [...e, 1])]
+    } else {
+      availability = [
+        ...props.todayAvailability.map(e => [...e, 0]),
+        ...props.tomorrowAvailability.map(e => [...e, 1])
+      ]
+    }
+
+    let rankings = [];
+    console.log("highly complex algorithm")
+    for (let timeIndex = 0; timeIndex < availability.length; timeIndex++) {
+      let minPrice = Number.MAX_SAFE_INTEGER;
+      let bestTime = 0;
+      // algorithm for finding the first time price
+      let interval = availability[timeIndex]
+      let startTime = interval[0];
+      let intervalLength = interval[1]; 
+      let totalPrice = 0;
+
+      // note - price is price per megawatt hour.
+      // washPower and dryPower are in watts, and the time interval of each
+      // minute is obviously a minute
+
+    
+      for (let i = 0; i < props.washTime; i++) {
+        totalPrice += props.washPower * priceForMinute(startTime + i);
+    
+      }
+      for (let i = 0; i < props.dryTime; i++) {
+        totalPrice += props.dryPower * priceForMinute(startTime + props.washTime + i);
+      }
+      if (totalPrice < minPrice) {
+        minPrice = totalPrice; 
+        bestTime = startTime;
+      }
+
+      let lastPrice = totalPrice;
+      // algorithm for finding the next time's price (based on sliding window)
+      let optimizations = 0;
+      for (let i = 1; i < intervalLength - props.washTime - props.dryTime; i++) {
+        totalPrice = lastPrice + 
+          (priceForMinute(startTime + props.washTime + props.dryTime + i) * props.dryPower) 
+          - (priceForMinute(startTime + i - 1) * props.washPower)
+          + priceForMinute(startTime + props.washTime + i)*(props.washPower - props.dryPower)
+        if (totalPrice < minPrice) {
+          minPrice = totalPrice;
+          bestTime = startTime + i;
+          optimizations++;
+        }
+        lastPrice = totalPrice;
+      }
+      console.log(optimizations)
+      rankings.push({day: interval[2], startTime: bestTime, price: minPrice})
+    }
+    
+    rankings.sort((a, b) => a.price - b.price)
+    console.log(rankings)
+    setTimeList(rankings)
+  }
+   
+
 
   useEffect(() => {
     const time = new Date()
@@ -41,6 +128,7 @@ export default function Schedule(props) {
       <Button onPress={() => selectTimes()} title="Pick Times"/>
       <View style={styles.schedule}>
         <View style={styles.washDryAlign}>
+
           <View style={styles.wash}>
             <Text style={styles.washDryText}>Wash</Text>
             <View style={styles.blueBlockHeader}>
@@ -50,12 +138,18 @@ export default function Schedule(props) {
             <View
               style={{
                 flexDirection: "row",
-                width: "65%",
+                width: "90%",
                 alignItems: "center",
               }}
             >
-              <View style={[styles.rectangle, { borderRightWidth: 1 }]}></View>
-              <View style={styles.rectangle}></View>
+              <View style={[styles.rectangle, { borderRightWidth: 1 }]}>
+                {timeList && timeList.map((e, i) => <Text>{displayTime(e, e.startTime)}</Text>)}
+
+              </View>
+              <View style={styles.rectangle}>
+                {timeList && timeList.map((e, i) => <Text>{displayTime(e, e.startTime + props.washTime)}</Text>)}
+
+              </View>
             </View>
           </View>
           <View style={styles.dry}>
@@ -67,12 +161,31 @@ export default function Schedule(props) {
             <View
               style={{
                 flexDirection: "row",
-                width: "65%",
+                width: "90%",
                 alignItems: "center",
               }}
             >
-              <View style={[styles.rectangle, { borderRightWidth: 1 }]}></View>
-              <View style={styles.rectangle}></View>
+              <View style={[styles.rectangle, { borderRightWidth: 1 }]}>
+                {timeList && timeList.map((e, i) => <Text>{displayTime(e, e.startTime + props.washTime)}</Text>)}
+              </View>
+              <View style={styles.rectangle}>
+                {timeList && timeList.map((e, i) => <Text>{displayTime(e, e.startTime + props.washTime + props.dryTime)}</Text>)}
+
+              </View>
+            </View>
+          </View>
+          <View style={styles.wash}>
+            <Text style={styles.washDryText}>Price</Text>
+            <View
+              style={{
+                flexDirection: "row",
+                width: "90%",
+                alignItems: "center",
+              }}
+            >
+              <View style={styles.rectangle}>
+              {timeList && timeList.map((e, i) => <Text>{Math.floor(e.price*100)} cents</Text>)}
+              </View>
             </View>
           </View>
         </View>
@@ -117,12 +230,12 @@ const styles = StyleSheet.create({
   },
   wash: {
     flexDirection: "column",
-    flex: 0.5,
+    flex: 0.33,
     alignItems: "center",
   },
   dry: {
     flexDirection: "column",
-    flex: 0.5,
+    flex: 0.33,
     alignItems: "center",
   },
   blueBlockHeader: {
