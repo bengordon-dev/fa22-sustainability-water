@@ -13,10 +13,16 @@ import { useState, useEffect } from "react";
 export default function Schedule(props) {
   const [daysIncluded, setDaysIncluded] = useState("today") // "today", "tomorrow", or "both"
   const [timeList, setTimeList] = useState([])
+  const [selectIndex, setSelectIndex] = useState(-1)
   
+  const currentTime = new Date()
+  const month = currentTime.getMonth()
+  const today = currentTime.getDate()
+
   function displayTime(obj, time) {
-    return `${obj.day === 0 ? "Today" : "Tomorrow"} ${Math.floor(time / 60)}:${time % 60 < 10 ? "0" : ""}${time % 60}`
+    return `${`${month + 1}/${today + obj.day}`} ${Math.floor(time / 60)}:${time % 60 < 10 ? "0" : ""}${time % 60}`
   }
+
 
   // UNITS: $/watt
   function priceForMinute(time) {
@@ -172,67 +178,55 @@ export default function Schedule(props) {
       </View>
       <Button onPress={() => selectTimes()} title="Pick Times" />
       <View style={styles.schedule}>
-        <View style={styles.washDryAlign}>
-
-          <View style={styles.wash}>
-            <Text style={styles.washDryText}>Wash</Text>
-            <View style={styles.blueBlockHeader}>
+        <View style={styles.column}>
+          <Text style={styles.washDryText}>Wash</Text>
+          <View style={styles.twoRectWrapper}>
+            <View style={styles.rectWrapper}>
               <Text style={{ marginRight: 10, fontSize: 20 }}>Start</Text>
-              <Text style={{ marginRight: 10, fontSize: 20 }}>End</Text>
-            </View>
-            <View
-              style={{
-                flexDirection: "row",
-                width: "90%",
-                alignItems: "center",
-              }}
-            >
               <View style={[styles.rectangle, { borderRightWidth: 1 }]}>
-                {timeList && timeList.map((e, i) => <Text>{displayTime(e, e.startTime)}</Text>)}
-
-              </View>
-              <View style={styles.rectangle}>
-                {timeList && timeList.map((e, i) => <Text>{displayTime(e, e.startTime + props.washTime)}</Text>)}
-
+                {timeList && timeList.map((e, i) => <Text key={i} 
+                  style={{backgroundColor: selectIndex === i ? "orange" : "#B1C6E1"}} 
+                  onPress={() => setSelectIndex(i)}>
+                  {displayTime(e, e.startTime)}
+                </Text>)}
               </View>
             </View>
-          </View>
-          <View style={styles.dry}>
-            <Text style={styles.washDryText}>Dry</Text>
-            <View style={styles.blueBlockHeader}>
-              <Text style={{ marginRight: 10, fontSize: 20 }}>Start</Text>
+            <View style={styles.rectWrapper}>
               <Text style={{ marginRight: 10, fontSize: 20 }}>End</Text>
+              <View style={styles.rectangle}>
+              {timeList && timeList.map((e, i) => <Text key={i} 
+                  style={{backgroundColor: selectIndex === i ? "orange" : "#B1C6E1"}} 
+                  onPress={() => setSelectIndex(i)}>
+                {displayTime(e, e.startTime + props.washTime)}
+              </Text>)}
+              </View>
             </View>
-            <View
-              style={{
-                flexDirection: "row",
-                width: "90%",
-                alignItems: "center",
-              }}
-            >
+          </View>
+        </View>
+        <View style={styles.column}>
+          <Text style={styles.washDryText}>Dry</Text>
+          <View style={styles.twoRectWrapper}>
+            <View style={styles.rectWrapper}>
+              <Text style={{ marginRight: 10, fontSize: 20 }}>End</Text>
               <View style={[styles.rectangle, { borderRightWidth: 1 }]}>
-                {timeList && timeList.map((e, i) => <Text>{displayTime(e, e.startTime + props.washTime)}</Text>)}
-              </View>
-              <View style={styles.rectangle}>
-                {timeList && timeList.map((e, i) => <Text>{displayTime(e, e.startTime + props.washTime + props.dryTime)}</Text>)}
-
-              </View>
-            </View>
-          </View>
-          <View style={styles.wash}>
-            <Text style={styles.washDryText}>Price</Text>
-            <View
-              style={{
-                flexDirection: "row",
-                width: "90%",
-                alignItems: "center",
-              }}
-            >
-              <View style={styles.rectangle}>
-              {timeList && timeList.map((e, i) => <Text>{Math.floor(e.price*100)} cents</Text>)}
+              {timeList && timeList.map((e, i) => <Text key={i} 
+                  style={{backgroundColor: selectIndex === i ? "orange" : "#B1C6E1"}} 
+                  onPress={() => setSelectIndex(i)}>
+                {displayTime(e, e.startTime + props.washTime + props.dryTime)}
+              </Text>)}
               </View>
             </View>
-          </View>
+            <View style={styles.rectWrapper}>
+              <Text style={{ marginRight: 10, fontSize: 20 }}>Price</Text>
+              <View style={styles.rectangle}>
+                {timeList && timeList.map((e, i) => <Text key={i} 
+                  style={{backgroundColor: selectIndex === i ? "orange" : "#B1C6E1"}} 
+                  onPress={() => setSelectIndex(i)}>
+                  {Math.round(e.price*1000)/10} cents
+                </Text>)}
+              </View>
+            </View>
+          </View>          
         </View>
       </View>
       <View style={styles.buttons}>
@@ -254,6 +248,7 @@ const styles = StyleSheet.create({
     marginTop: 70,
     flex: 1,
     backgroundColor: "#fff",
+    flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -264,36 +259,29 @@ const styles = StyleSheet.create({
   schedule: {
     flex: 3,
     flexDirection: "column",
-    // justifyContent: 'space-between',
-  },
-  washDryAlign: {
-    marginTop: 60,
-    // justifyContent: 'space-between',
-    flexDirection: "row",
-    flex: 1,
     width: "100%",
-  },
-  wash: {
-    flexDirection: "column",
-    flex: 0.33,
-    alignItems: "center",
-  },
-  dry: {
-    flexDirection: "column",
-    flex: 0.33,
-    alignItems: "center",
-  },
-  blueBlockHeader: {
+    marginTop: 50,
     flexDirection: "row",
-    width: "60%",
+  },
+  column: {
+    flexDirection: "column",
+    flex: 0.5,
     alignItems: "center",
-    justifyContent: "center",
-    marginTop: 20,
+  },
+  twoRectWrapper: {
+    flexDirection: "row",
+    width: "90%",
+    alignItems: "center",
+    marginTop: 15,
+  },
+  rectWrapper: {
+    width: "50%",
+    alignItems: "center"
   },
   rectangle: {
     backgroundColor: "#B1C6E1",
     height: 228,
-    width: "50%",
+    width: "100%",
   },
   washDryText: {
     fontSize: 40,
