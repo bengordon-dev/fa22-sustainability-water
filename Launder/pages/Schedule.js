@@ -33,8 +33,7 @@ export default function Schedule(props) {
   const [optimizeVal, setOptimizeVal] = useState("both") // "price", "renewables", or "both"
   const currentTime = new Date()
   const month = currentTime.getMonth()
-  const today = currentTime.getDate()
-
+  const today = currentTime.getDate()  
 
   // time is in minutes
   function displayTime(obj, minute) {
@@ -44,7 +43,7 @@ export default function Schedule(props) {
     return `${`${month + 1}/${today + obj.day}`} ${hour}:${minute % 60 < 10 ? "0" : ""}${minute % 60} ${half}M`
   }
 
-  // UNITS: $/watt
+  // UNITS: $
   function priceForMinute(minute, multiplier) {
     let data = props.points
     if (data.length === 0) return NaN
@@ -56,10 +55,10 @@ export default function Schedule(props) {
       index++
     }
     if (index === 0) {
-      return data[0].price/60/1000000
+      return multiplier * data[0].price/60/1000000
     } 
     if (index === data.length) {
-      return data[data.length - 1].price/60/1000000
+      return multiplier * data[data.length - 1].price/60/1000000
     }
     return multiplier * (data[index - 1].price + 
       (data[index].price - data[index - 1].price) * 
@@ -104,10 +103,13 @@ export default function Schedule(props) {
       ]
     }
     availability = availability.filter(e => e[1] >= props.washTime + props.dryTime)
-    const optimizeFunc = (minute, multiplier, day) => {
-      return optimizeVal === "price" ? priceForMinute(minute, multiplier)
-           : optimizeVal === "renewables" ? renewablesAtMinute(minute, day)
-           : optimizeVal === "both" ? renewablesAtMinute(minute, day) * priceForMinute(minute, multiplier)
+
+    const maxRenewables = Math.max(...[...props.renewPoints.map(e => e.combined), ...props.nextRenewPoints.map(e => e.combined)])
+
+    const optimizeFunc = (totalPrice, totalRenew) => {
+      return optimizeVal === "price" ? totalPrice
+           : optimizeVal === "renewables" ? maxRenewables - (totalRenew / (props.washTime + props.dryTime))
+           : optimizeVal === "both" ? (maxRenewables - (totalRenew / (props.washTime + props.dryTime))) * totalPrice
            : 0
     }
 
@@ -122,28 +124,26 @@ export default function Schedule(props) {
       let startTime = interval[0];
       let intervalLength = interval[1]; 
       let day = interval[2]
-      let totalVal = 0
+      let totalRenew = 0
       let totalPrice = 0;
 
       // note - price is price per megawatt hour. washPower and dryPower are in watts, and the time interval of each minute is obviously a minute
 
       for (let i = 0; i < props.washTime; i++) {
         totalPrice += priceForMinute(startTime + i, props.washPower);
-        totalVal += optimizeFunc(startTime + i, props.washPower, day)
+        totalRenew += renewablesAtMinute(startTime + i, day)
       }
       for (let i = 0; i < props.dryTime; i++) {
         totalPrice += priceForMinute(startTime + props.washTime + i, props.dryPower);
-        totalVal += optimizeFunc(startTime + i, props.washPower, day)
+        totalRenew += renewablesAtMinute(startTime + i, day)
       }
-      //if (totalPrice < minPrice) {
-      let minPrice = totalPrice; 
+      let lastPrice = totalPrice; 
+      let minPrice = totalPrice
       let bestTime = startTime;
-      let minVal = totalVal;
+      let lastRenew = totalRenew;
+      let minRenew = totalRenew;
+      let minVal = optimizeFunc(lastPrice, lastRenew)
 
-      //}
-
-      let lastPrice = minPrice;
-      let lastVal = minVal
       // algorithm for finding the next time's price (based on sliding window)
       let optimizations = 0;
       for (let i = 1; i < intervalLength - props.washTime - props.dryTime; i++) {
@@ -151,18 +151,19 @@ export default function Schedule(props) {
           priceForMinute(startTime + props.washTime + props.dryTime + i, props.dryPower) 
           - priceForMinute(startTime + i - 1, props.washPower)
           + priceForMinute(startTime + props.washTime + i, props.washPower - props.dryPower)
-        totalVal = lastVal +
-          optimizeFunc(startTime + props.washTime + props.dryTime + i, props.dryPower, day) 
-          - optimizeFunc(startTime + i - 1, props.washPower, day)
-          + optimizeFunc(startTime + props.washTime + i, props.washPower - props.dryPower, day)
-        if (totalVal < minVal) {
+        totalRenew = lastRenew +
+          renewablesAtMinute(startTime + props.washTime + props.dryTime + i, day) 
+          - renewablesAtMinute(startTime + i - 1, day)
+          //+ optimizeFunc(startTime + props.washTime + i, props.washPower - props.dryPower, day)
+        let val = optimizeFunc(totalPrice, totalRenew)
+        if (val < minVal) {
           minPrice = totalPrice;
-          minVal = totalVal
+          minVal = val
           bestTime = startTime + i;
           optimizations++;
         }
         lastPrice = totalPrice;
-        lastVal = totalVal
+        lastRenew = totalRenew
       }
       console.log(optimizations)
       rankings.push({day: interval[2], startTime: bestTime, price: minPrice, val: minVal})
