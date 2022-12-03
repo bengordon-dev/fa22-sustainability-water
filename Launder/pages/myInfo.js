@@ -34,11 +34,12 @@ export default function myInfo(props) {
         onPress={props.goHome}
       >
         <Image
-          source={require("../assets/infoPage_return.jpg")}
+          source={require("../assets/return.jpg")}
           //style={styles.buttonImageIconStyle}
         />
       </TouchableOpacity>
-      <Text> </Text>
+      <Text style={styles.backButtonText}>My Info</Text>
+
       <Text
         onPress={() => showAvailability(!availabilityShown)}
         style={styles.headers}
@@ -104,7 +105,9 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 50,
-    //width: 100,
+    width: 80,
+    textAlign: "center",
+    fontFamily: "nunito-regular",
     margin: 12,
     borderWidth: 1,
     padding: 10,
@@ -117,10 +120,17 @@ const styles = StyleSheet.create({
   backButton: {
     //flexDirection: "row",
     top: 10,
-    left: -100,
+    left: -195,
   },
   headers: {
     fontFamily: "nunito-regular",
     fontSize: 24,
+  },
+  backButtonText: {
+    fontFamily: "nunito-extrabold",
+    fontSize: 48,
+    top: -42.5,
+    //left: -90,
+    textAlign: "center",
   },
 });

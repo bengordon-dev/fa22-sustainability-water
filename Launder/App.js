@@ -13,6 +13,8 @@ const getFonts = () =>
   Font.loadAsync({
     "nunito-regular": require("./assets/fonts/Nunito-Regular.ttf"),
     "nunito-semibold": require("./assets/fonts/Nunito-SemiBold.ttf"),
+    "nunito-extrabold": require("./assets/fonts/Nunito-ExtraBold.ttf"),
+    "nunito-medium": require("./assets/fonts/Nunito-Medium.ttf"),
   });
 
 export default function App() {
@@ -28,8 +30,8 @@ export default function App() {
   const [renewPoints, setRenewPoints] = useState([]); // current day
   const [nextRenewPoints, setNextRenewPoints] = useState([]); // next day
   const [day, setDay] = useState("currentDay"); // damSppData or rtSppData
-  const [timeList, setTimeList] = useState([])
-  const [selectIndex, setSelectIndex] = useState(-1)
+  const [timeList, setTimeList] = useState([]);
+  const [selectIndex, setSelectIndex] = useState(-1);
   const region = "lzLcra";
   // floor(minutes since midnight / 30). Updated whenever switching between pages/components.
   const [nowInterval, setNowInterval] = useState(0);
@@ -45,21 +47,22 @@ export default function App() {
     fetch("http://127.0.0.1:5000/getCombinedWindandSolar")
       .then((res) => res.json())
       .then((res) => {
-        res.today && setRenewPoints(res.today)
-        res.tomorrow && setNextRenewPoints(res.tomorrow)
-      })
+        res.today && setRenewPoints(res.today);
+        res.tomorrow && setNextRenewPoints(res.tomorrow);
+      });
   }, []);
 
-  // filter out obsolete intervals from the past 
+  // filter out obsolete intervals from the past
   useEffect(() => {
-    setAvailability([...availability
-                      .filter(e => e[0] + e[1] > nowInterval)
-                      .map(e => {
-                        const newStart = Math.max(e[0], nowInterval*30)
-                        return [newStart, e[0] + e[1] - newStart]
-                      })
-                    ])
-  }, [nowInterval])
+    setAvailability([
+      ...availability
+        .filter((e) => e[0] + e[1] > nowInterval)
+        .map((e) => {
+          const newStart = Math.max(e[0], nowInterval * 30);
+          return [newStart, e[0] + e[1] - newStart];
+        }),
+    ]);
+  }, [nowInterval]);
 
   if (fontsLoaded) {
     return page === "graph" ? (
@@ -80,7 +83,11 @@ export default function App() {
         setDay={setDay}
         nowInterval={day === "currentDay" ? nowInterval : 0}
         setNowInterval={setNowInterval}
-        chosenTime={selectIndex >= 0 ? {...timeList[selectIndex], width: dryTime + washTime} : null}
+        chosenTime={
+          selectIndex >= 0
+            ? { ...timeList[selectIndex], width: dryTime + washTime }
+            : null
+        }
       />
     ) : page === "schedule" ? (
       <Schedule
@@ -104,7 +111,6 @@ export default function App() {
         setTimeList={setTimeList}
         selectIndex={selectIndex}
         setSelectIndex={setSelectIndex}
-        
       />
     ) : page === "myinfo" ? (
       <MyInfo

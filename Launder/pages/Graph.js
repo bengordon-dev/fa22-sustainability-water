@@ -42,10 +42,11 @@ export default function Graph(props) {
         onPress={() => props.setPage("home")}
       >
         <Image
-          source={require("../assets/dataPage_return.jpg")}
+          source={require("../assets/return.jpg")}
           //style={styles.buttonImageIconStyle}
         />
       </TouchableOpacity>
+      <Text style={styles.backButtonText}>Graph</Text>
       {/* <Button title="Go Home" onPress={() => props.setPage("home")}></Button>*/}
       <ScrollView contentContainerStyle={styles.container}>
         <GraphSVG
@@ -63,6 +64,9 @@ export default function Graph(props) {
         />
 
         <Button
+          style={{
+            fontFamily: "nunito-regular",
+          }}
           title={props.day === "currentDay" ? "Current Day" : "Next Day"}
           onPress={() =>
             props.setDay(props.day == "currentDay" ? "nextDay" : "currentDay")
@@ -86,6 +90,9 @@ export default function Graph(props) {
       <Button
         title="Schedule"
         onPress={() => props.setPage("schedule")}
+        style={{
+          fontFamily: "nunito-regular",
+        }}
       ></Button>
     </SafeAreaView>
   );
@@ -102,5 +109,12 @@ const styles = StyleSheet.create({
   backButton: {
     //flexDirection: "row",
     left: 5,
+  },
+  backButtonText: {
+    fontFamily: "nunito-extrabold",
+    fontSize: 48,
+    top: -52,
+    // left: 35,
+    textAlign: "center",
   },
 });
