@@ -116,7 +116,6 @@ export default function Schedule(props) {
 
 
     let rankings = [];
-    console.log("highly complex algorithm")
     for (let timeIndex = 0; timeIndex < availability.length; timeIndex++) {
       //let minPrice = Number.MAX_SAFE_INTEGER
       //let bestTime = 0;
@@ -166,7 +165,6 @@ export default function Schedule(props) {
         lastPrice = totalPrice;
         lastRenew = totalRenew
       }
-      console.log(optimizations)
       rankings.push({day: interval[2], startTime: bestTime, price: minPrice, val: minVal})
     }
     
@@ -192,6 +190,9 @@ export default function Schedule(props) {
         body: 'Time to start laundry!',
         title: 'Launder',
         sound: 'chime.aiff',
+        silent: 'false',
+        category: "SOME_CATEGORY",
+        userInfo: { },
         fireDate: fire.toISOString()// only iOS
       }, 0);
     }

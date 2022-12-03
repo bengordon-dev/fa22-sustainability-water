@@ -13,8 +13,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [page, setPage] = useState("home");
-  const [availability, setAvailability] = useState([[630, 780]]); // current day
-  const [nextAvailability, setNextAvailability] = useState([[630, 180]]); // next day
+  const [availability, setAvailability] = useState([]); // current day
+  const [nextAvailability, setNextAvailability] = useState([]); // next day
   const [washTime, setWashTime] = useState(30);
   const [dryTime, setDryTime] = useState(60);
   const [washPower, setWashPower] = useState(850);
