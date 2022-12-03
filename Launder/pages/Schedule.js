@@ -10,41 +10,88 @@ import {
 const customData = require("../sample-data.json");
 import { useState, useEffect } from "react";
 
+function ButtonRow(props) {
+  return <View style={styles.buttonRow}>
+    <Text style={{ fontSize: 16, marginRight: 5, marginLeft: 20 }}>
+      {props.text}
+    </Text>
+    {props.options && props.options.map((option, i) => 
+      <View key={i} style={{backgroundColor: props.stateVar === option ? "green" : "white"}}>
+        <Button
+          onPress={() => props.callback(option)}
+          title={option.charAt(0).toUpperCase() + option.slice(1)}
+          color={props.stateVar === option ? "white" : "blue"}
+        />
+      </View>
+    )}
+  </View>
+}
+
+
 export default function Schedule(props) {
   const [daysIncluded, setDaysIncluded] = useState("today") // "today", "tomorrow", or "both"
-  const [timeList, setTimeList] = useState([])
-  const [selectIndex, setSelectIndex] = useState(-1)
-  
+  const [optimizeVal, setOptimizeVal] = useState("both") // "price", "renewables", or "both"
   const currentTime = new Date()
   const month = currentTime.getMonth()
   const today = currentTime.getDate()
 
-  function displayTime(obj, time) {
-    return `${`${month + 1}/${today + obj.day}`} ${Math.floor(time / 60)}:${time % 60 < 10 ? "0" : ""}${time % 60}`
+
+  // time is in minutes
+  function displayTime(obj, minute) {
+    let hour = Math.floor(minute / 60) % 12
+    const half = Math.floor(minute / 60) >= 12 ? "P" : "A"
+    hour = (hour === 0) ? 12 : hour
+    return `${`${month + 1}/${today + obj.day}`} ${hour}:${minute % 60 < 10 ? "0" : ""}${minute % 60} ${half}M`
   }
 
-
   // UNITS: $/watt
-  function priceForMinute(time) {
-
-
+  function priceForMinute(minute, multiplier) {
     let data = props.points
+    if (data.length === 0) return NaN
     // naive approach
     let curTime = data[0].hoursElapsed*60;
     let index = 0;
-    while (curTime < time) {
-      curTime = data[++index].hoursElapsed*60;
+    while (index < data.length && curTime < minute) {
+      curTime = data[index].hoursElapsed*60;
+      index++
     }
-    
-    return (data[index - 1].price + 
+    if (index === 0) {
+      return data[0].price/60/1000000
+    } 
+    if (index === data.length) {
+      return data[data.length - 1].price/60/1000000
+    }
+    return multiplier * (data[index - 1].price + 
       (data[index].price - data[index - 1].price) * 
-      (time - (data[index - 1].hoursElapsed*60)) / 
+      (minute - (data[index - 1].hoursElapsed*60)) / 
       ((data[index].hoursElapsed*60) - (data[index - 1].hoursElapsed*60)))
-      / 60
-      / 1000000    
+      / 60 / 1000000    
   }
 
-  function selectTimes() {
+  function renewablesAtMinute(minute, day) {
+    let data = day === 0 ? props.renewPoints : props.nextRenewPoints
+    if (data.length === 0) return NaN
+    // naive approach
+    let curTime = data[0].hour*60;
+    let index = 0;
+    while (index < data.length && curTime < minute) {
+      curTime = data[index].hour*60;
+      index++
+    }
+    if (index === 0) {
+      return data[0].combined
+    } 
+    if (index === data.length) {
+      return data[data.length - 1].combined
+    }
+    return data[index - 1].combined + 
+      (data[index].combined - data[index - 1].combined) * 
+      (minute - (data[index - 1].hour*60)) / 
+      ((data[index].hour*60) - (data[index - 1].hour*60))
+  }
+
+  // "renewables", "price", "both"
+  function selectTimes(optimizeVal) {
     let availability = []
     if (daysIncluded === "today") {
       availability = [...props.todayAvailability.map(e => [...e, 0])]
@@ -56,60 +103,75 @@ export default function Schedule(props) {
         ...props.tomorrowAvailability.map(e => [...e, 1])
       ]
     }
+    availability = availability.filter(e => e[1] >= props.washTime + props.dryTime)
+    const optimizeFunc = (minute, multiplier, day) => {
+      return optimizeVal === "price" ? priceForMinute(minute, multiplier)
+           : optimizeVal === "renewables" ? renewablesAtMinute(minute, day)
+           : optimizeVal === "both" ? renewablesAtMinute(minute, day) * priceForMinute(minute, multiplier)
+           : 0
+    }
+
 
     let rankings = [];
     console.log("highly complex algorithm")
     for (let timeIndex = 0; timeIndex < availability.length; timeIndex++) {
-      let minPrice = Number.MAX_SAFE_INTEGER;
-      let bestTime = 0;
+      //let minPrice = Number.MAX_SAFE_INTEGER
+      //let bestTime = 0;
       // algorithm for finding the first time price
       let interval = availability[timeIndex]
       let startTime = interval[0];
       let intervalLength = interval[1]; 
+      let day = interval[2]
+      let totalVal = 0
       let totalPrice = 0;
 
-      // note - price is price per megawatt hour.
-      // washPower and dryPower are in watts, and the time interval of each
-      // minute is obviously a minute
+      // note - price is price per megawatt hour. washPower and dryPower are in watts, and the time interval of each minute is obviously a minute
 
-    
       for (let i = 0; i < props.washTime; i++) {
-        totalPrice += props.washPower * priceForMinute(startTime + i);
-    
+        totalPrice += priceForMinute(startTime + i, props.washPower);
+        totalVal += optimizeFunc(startTime + i, props.washPower, day)
       }
       for (let i = 0; i < props.dryTime; i++) {
-        totalPrice += props.dryPower * priceForMinute(startTime + props.washTime + i);
+        totalPrice += priceForMinute(startTime + props.washTime + i, props.dryPower);
+        totalVal += optimizeFunc(startTime + i, props.washPower, day)
       }
-      if (totalPrice < minPrice) {
-        minPrice = totalPrice; 
-        bestTime = startTime;
-      }
+      //if (totalPrice < minPrice) {
+      let minPrice = totalPrice; 
+      let bestTime = startTime;
+      let minVal = totalVal;
 
-      let lastPrice = totalPrice;
+      //}
+
+      let lastPrice = minPrice;
+      let lastVal = minVal
       // algorithm for finding the next time's price (based on sliding window)
       let optimizations = 0;
       for (let i = 1; i < intervalLength - props.washTime - props.dryTime; i++) {
         totalPrice = lastPrice + 
-          (priceForMinute(startTime + props.washTime + props.dryTime + i) * props.dryPower) 
-          - (priceForMinute(startTime + i - 1) * props.washPower)
-          + priceForMinute(startTime + props.washTime + i)*(props.washPower - props.dryPower)
-        if (totalPrice < minPrice) {
+          priceForMinute(startTime + props.washTime + props.dryTime + i, props.dryPower) 
+          - priceForMinute(startTime + i - 1, props.washPower)
+          + priceForMinute(startTime + props.washTime + i, props.washPower - props.dryPower)
+        totalVal = lastVal +
+          optimizeFunc(startTime + props.washTime + props.dryTime + i, props.dryPower, day) 
+          - optimizeFunc(startTime + i - 1, props.washPower, day)
+          + optimizeFunc(startTime + props.washTime + i, props.washPower - props.dryPower, day)
+        if (totalVal < minVal) {
           minPrice = totalPrice;
+          minVal = totalVal
           bestTime = startTime + i;
           optimizations++;
         }
         lastPrice = totalPrice;
+        lastVal = totalVal
       }
       console.log(optimizations)
-      rankings.push({day: interval[2], startTime: bestTime, price: minPrice})
+      rankings.push({day: interval[2], startTime: bestTime, price: minPrice, val: minVal})
     }
     
-    rankings.sort((a, b) => a.price - b.price)
-    console.log(rankings)
-    setTimeList(rankings)
+    rankings.sort((a, b) => a.val - b.val)
+    props.setSelectIndex(-1)
+    props.setTimeList(rankings)
   }
-   
-
 
   useEffect(() => {
     const time = new Date();
@@ -123,7 +185,7 @@ export default function Schedule(props) {
       <TouchableOpacity
         style={styles.backButton}
         activeOpacity={0.5}
-        onPress={() => props.goHome()}
+        onPress={() => props.setPage("home")}
       >
         <Image
           source={require("../assets/schedulePage_return.jpg")}
@@ -131,52 +193,20 @@ export default function Schedule(props) {
         />
       </TouchableOpacity>
       <Text style={styles.title}> </Text>
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "flex-start",
-          width: "100%",
-        }}
-      >
-        <Text style={{ fontSize: 16, marginRight: 5, marginLeft: 20 }}>
-          Days included:
-        </Text>
-        <View
-          style={{
-            backgroundColor: daysIncluded === "today" ? "green" : "white",
-          }}
-        >
-          <Button
-            onPress={() => setDaysIncluded("today")}
-            title="Today"
-            color={daysIncluded === "today" ? "white" : "blue"}
-          />
-        </View>
-        <View
-          style={{
-            backgroundColor: daysIncluded === "tomorrow" ? "green" : "white",
-          }}
-        >
-          <Button
-            onPress={() => setDaysIncluded("tomorrow")}
-            title="Tommorrow"
-            color={daysIncluded === "tomorrow" ? "white" : "blue"}
-          />
-        </View>
-        <View
-          style={{
-            backgroundColor: daysIncluded === "both" ? "green" : "white",
-          }}
-        >
-          <Button
-            onPress={() => setDaysIncluded("both")}
-            title="Both"
-            color={daysIncluded === "both" ? "white" : "blue"}
-          />
-        </View>
-      </View>
-      <Button onPress={() => selectTimes()} title="Pick Times" />
+      <ButtonRow 
+        text="Days included:" 
+        options={["today", "tomorrow", "both"]}
+        stateVar={daysIncluded}
+        callback={setDaysIncluded}
+      />
+      <ButtonRow 
+        text="Optimize for:" 
+        options={["price", "renewables", "both"]}
+        stateVar={optimizeVal}
+        callback={setOptimizeVal}
+      />
+      
+      <Button onPress={() => selectTimes(optimizeVal)} title="Pick Times" />
       <View style={styles.schedule}>
         <View style={styles.column}>
           <Text style={styles.washDryText}>Wash</Text>
@@ -184,9 +214,9 @@ export default function Schedule(props) {
             <View style={styles.rectWrapper}>
               <Text style={{ marginRight: 10, fontSize: 20 }}>Start</Text>
               <View style={[styles.rectangle, { borderRightWidth: 1 }]}>
-                {timeList && timeList.map((e, i) => <Text key={i} 
-                  style={{backgroundColor: selectIndex === i ? "orange" : "#B1C6E1"}} 
-                  onPress={() => setSelectIndex(i)}>
+                {props.timeList && props.timeList.map((e, i) => <Text key={i} 
+                  style={{backgroundColor: props.selectIndex === i ? "orange" : "#B1C6E1"}} 
+                  onPress={() => props.setSelectIndex(i)}>
                   {displayTime(e, e.startTime)}
                 </Text>)}
               </View>
@@ -194,9 +224,9 @@ export default function Schedule(props) {
             <View style={styles.rectWrapper}>
               <Text style={{ marginRight: 10, fontSize: 20 }}>End</Text>
               <View style={styles.rectangle}>
-              {timeList && timeList.map((e, i) => <Text key={i} 
-                  style={{backgroundColor: selectIndex === i ? "orange" : "#B1C6E1"}} 
-                  onPress={() => setSelectIndex(i)}>
+              {props.timeList && props.timeList.map((e, i) => <Text key={i} 
+                  style={{backgroundColor: props.selectIndex === i ? "orange" : "#B1C6E1"}} 
+                  onPress={() => props.setSelectIndex(i)}>
                 {displayTime(e, e.startTime + props.washTime)}
               </Text>)}
               </View>
@@ -209,9 +239,9 @@ export default function Schedule(props) {
             <View style={styles.rectWrapper}>
               <Text style={{ marginRight: 10, fontSize: 20 }}>End</Text>
               <View style={[styles.rectangle, { borderRightWidth: 1 }]}>
-              {timeList && timeList.map((e, i) => <Text key={i} 
-                  style={{backgroundColor: selectIndex === i ? "orange" : "#B1C6E1"}} 
-                  onPress={() => setSelectIndex(i)}>
+              {props.timeList && props.timeList.map((e, i) => <Text key={i} 
+                  style={{backgroundColor: props.selectIndex === i ? "orange" : "#B1C6E1"}} 
+                  onPress={() => props.setSelectIndex(i)}>
                 {displayTime(e, e.startTime + props.washTime + props.dryTime)}
               </Text>)}
               </View>
@@ -219,9 +249,9 @@ export default function Schedule(props) {
             <View style={styles.rectWrapper}>
               <Text style={{ marginRight: 10, fontSize: 20 }}>Price</Text>
               <View style={styles.rectangle}>
-                {timeList && timeList.map((e, i) => <Text key={i} 
-                  style={{backgroundColor: selectIndex === i ? "orange" : "#B1C6E1"}} 
-                  onPress={() => setSelectIndex(i)}>
+                {props.timeList && props.timeList.map((e, i) => <Text key={i} 
+                  style={{backgroundColor: props.selectIndex === i ? "orange" : "#B1C6E1"}} 
+                  onPress={() => props.setSelectIndex(i)}>
                   {Math.round(e.price*1000)/10} cents
                 </Text>)}
               </View>
@@ -235,7 +265,7 @@ export default function Schedule(props) {
           <Button title="Remind me" />
         </View>
         <View>
-          <Button title="Energy data" />
+          <Button onPress={() => props.setPage("graph")} title="Energy data" />
         </View>
       </View>
     </View>
@@ -250,14 +280,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     flexDirection: "column",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start",
   },
   title: {
     // flex: 1,
     fontSize: 64,
   },
   schedule: {
-    flex: 3,
     flexDirection: "column",
     width: "100%",
     marginTop: 50,
@@ -285,6 +314,12 @@ const styles = StyleSheet.create({
   },
   washDryText: {
     fontSize: 40,
+  },
+  buttonRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    width: "100%",
   },
   buttons: {
     flexDirection: "column",

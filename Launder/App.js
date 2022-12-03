@@ -18,11 +18,8 @@ const getFonts = () =>
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [page, setPage] = useState("home");
-  const [availability, setAvailability] = useState([
-    [480, 180],
-    [780, 120],
-  ]); // current day
-  const [nextAvailability, setNextAvailability] = useState([]); // next day
+  const [availability, setAvailability] = useState([[630, 780]]); // current day
+  const [nextAvailability, setNextAvailability] = useState([[630, 180]]); // next day
   const [washTime, setWashTime] = useState(30);
   const [dryTime, setDryTime] = useState(60);
   const [washPower, setWashPower] = useState(850);
@@ -31,11 +28,11 @@ export default function App() {
   const [renewPoints, setRenewPoints] = useState([]); // current day
   const [nextRenewPoints, setNextRenewPoints] = useState([]); // next day
   const [day, setDay] = useState("currentDay"); // damSppData or rtSppData
-  const [region, setRegion] = useState("lzLcra");
-
+  const [timeList, setTimeList] = useState([])
+  const [selectIndex, setSelectIndex] = useState(-1)
+  const region = "lzLcra";
   // floor(minutes since midnight / 30). Updated whenever switching between pages/components.
   const [nowInterval, setNowInterval] = useState(0);
-
 
   useEffect(() => {
     const time = new Date();
@@ -53,6 +50,16 @@ export default function App() {
       })
   }, []);
 
+  // filter out obsolete intervals from the past 
+  useEffect(() => {
+    setAvailability([...availability
+                      .filter(e => e[0] + e[1] > nowInterval)
+                      .map(e => {
+                        const newStart = Math.max(e[0], nowInterval*30)
+                        return [newStart, e[0] + e[1] - newStart]
+                      })
+                    ])
+  }, [nowInterval])
 
   if (fontsLoaded) {
     return page === "graph" ? (
@@ -73,10 +80,11 @@ export default function App() {
         setDay={setDay}
         nowInterval={day === "currentDay" ? nowInterval : 0}
         setNowInterval={setNowInterval}
+        chosenTime={selectIndex >= 0 ? {...timeList[selectIndex], width: dryTime + washTime} : null}
       />
     ) : page === "schedule" ? (
       <Schedule
-        goHome={() => setPage("home")}
+        setPage={setPage}
         points={points}
         renewPoints={renewPoints.filter(
           (e) => Math.floor(e.hour * 2) >= nowInterval
@@ -92,6 +100,11 @@ export default function App() {
         dryPower={dryPower}
         todayAvailability={availability}
         tomorrowAvailability={nextAvailability}
+        timeList={timeList}
+        setTimeList={setTimeList}
+        selectIndex={selectIndex}
+        setSelectIndex={setSelectIndex}
+        
       />
     ) : page === "myinfo" ? (
       <MyInfo

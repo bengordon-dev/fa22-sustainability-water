@@ -4,7 +4,8 @@ import { Text as SVGText } from "react-native-svg";
 
 export default function GraphSVG(props) {
   const hourRange = 24 - props.startHour
-
+  const displayChosenTime = props.chosenTime && ((props.day === "currentDay" && props.chosenTime.day === 0)
+        || (props.day === "nextDay" && props.chosenTime.day === 1))
   return (
     <View width="100%" height={props.height} style={{alignItems: "center", justifyContent: "center"}}>
       <Svg height="100%" width={props.width} viewBox="0 0 180 140" >
@@ -37,16 +38,16 @@ export default function GraphSVG(props) {
         <SVGText x={17 - 3*(Math.floor(props.maxVal/2)).toString().length} y={70} fill="black" fontSize="5">{Math.floor(props.maxVal/2)}</SVGText>
         <SVGText x={17 - 3*(Math.floor(props.maxVal)).toString().length} y={25} fill="black" fontSize="5">{Math.floor(props.maxVal)}</SVGText>
         {props.availability.length > 0 && 
-          props.availability.filter(e => Math.floor((e[0] + e[1])/30) > props.startHour*2).map((interval, i) => {
-            const width = Math.min(interval[1] + interval[0] - props.startHour*60, interval[1])
-            return (
-            <Rect 
-              x={20 + Math.max(0, (interval[0] - props.startHour*60)/(hourRange*60))*150} 
-              y={20} height={100} fill="blue" opacity=".1" width={width/1440*150} key={i}/> 
-            )
-          }
-
-        )}
+          props.availability.map((interval, i) => <Rect 
+            x={20 + (interval[0] - props.startHour*60)/(hourRange*60)*150} 
+            y={20} height={100} fill="blue" opacity=".1" width={interval[1]/(hourRange*60)*150} key={i}
+          />)
+        }
+        {props.chosenTime && displayChosenTime && <Rect
+            x={20 + (props.chosenTime.startTime - props.startHour*60)/(hourRange*60)*150}
+            y={20} height={100} fill="orange" opacity=".1" width={props.chosenTime.width/(hourRange*60)*150}
+          >
+        </Rect>}
 
       </Svg>
     </View>
