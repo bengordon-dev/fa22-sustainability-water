@@ -1,4 +1,3 @@
-import { StatusBar } from "expo-status-bar";
 import {
   StyleSheet,
   Text,
@@ -8,6 +7,9 @@ import {
   Image,
 } from "react-native";
 import { useState, useEffect } from "react";
+import {Notifications} from 'react-native-notifications';
+
+
 
 function ButtonRow(props) {
   return <View style={styles.buttonRow}>
@@ -180,6 +182,23 @@ export default function Schedule(props) {
     );
   }, []);
 
+  function postNotification() {
+    if (props.selectIndex >= 0) {
+      const time = new Date()
+      const entry = props.timeList[props.selectIndex]
+      const fire = new Date(time.getFullYear(), time.getMonth(), 
+      entry.day, entry.startTime)
+      Notifications.postLocalNotification({
+        body: 'Time to start laundry!',
+        title: 'Launder',
+        sound: 'chime.aiff',
+        fireDate: fire.toISOString()// only iOS
+      }, 0);
+    }
+    
+  }
+
+
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -262,7 +281,7 @@ export default function Schedule(props) {
       <View style={styles.buttons}>
         <View style={styles.buttonOne}>
           {/*<Button onPress={props.goHome} title="Go home" />*/}
-          <Button title="Remind me" />
+          <Button onPress={() => postNotification() }title="Remind me" />
         </View>
         <View>
           <Button onPress={() => props.setPage("graph")} title="Energy data" />
