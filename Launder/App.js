@@ -18,108 +18,48 @@ const getFonts = () =>
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [page, setPage] = useState("home");
-  const [availability, setAvailability] = useState([
-    [480, 180],
-    [780, 120],
-  ]); // current day
-  const [nextAvailability, setNextAvailability] = useState([]); // next day
+  const [availability, setAvailability] = useState([[630, 780]]); // current day
+  const [nextAvailability, setNextAvailability] = useState([[630, 180]]); // next day
   const [washTime, setWashTime] = useState(30);
   const [dryTime, setDryTime] = useState(60);
   const [washPower, setWashPower] = useState(850);
   const [dryPower, setDryPower] = useState(4000);
-  const [graphData, setGraphData] = useState({});
-  const [renewData, setRenewData] = useState({});
   const [points, setPoints] = useState([]);
   const [renewPoints, setRenewPoints] = useState([]); // current day
   const [nextRenewPoints, setNextRenewPoints] = useState([]); // next day
   const [day, setDay] = useState("currentDay"); // damSppData or rtSppData
-  const [region, setRegion] = useState("lzLcra");
-
+  const [timeList, setTimeList] = useState([])
+  const [selectIndex, setSelectIndex] = useState(-1)
+  const region = "lzLcra";
   // floor(minutes since midnight / 30). Updated whenever switching between pages/components.
   const [nowInterval, setNowInterval] = useState(0);
 
   useEffect(() => {
-    if (renewData["currentDay"] && renewData["nextDay"]) {
-      let newRenewData = [];
-      let newNextRenewData = [];
-      for (const hrEntry of Object.entries(renewData["currentDay"].data)) {
-        const hourEntry = hrEntry[1];
-        let entry = { hour: hourEntry.hourEnding };
-        if (hourEntry.actualWind && hourEntry.actualSolar) {
-          entry.combined = hourEntry.actualWind + hourEntry.actualSolar;
-        } else {
-          entry.combined = hourEntry.copHslWind + hourEntry.copHslSolar;
-        }
-        newRenewData.push(entry);
-      }
-      for (const hrEntry of Object.entries(renewData["nextDay"].data)) {
-        const hourEntry = hrEntry[1];
-        let entry = { hour: hourEntry.hourEnding };
-        entry.combined = hourEntry.copHslSolar + hourEntry.copHslWind;
-        newNextRenewData.push(entry);
-      }
-      //console.log(newRenewData)
-      setRenewPoints(newRenewData);
-      setNextRenewPoints(newNextRenewData);
-    }
-  }, [renewData]);
-
-  useEffect(() => {
-    //console.log(props.availability)
     const time = new Date();
     setNowInterval(Math.floor((time.getHours() * 60 + time.getMinutes()) / 30));
-    fetch("http://127.0.0.1:5000/getSystemWidePrices")
+    fetch(`http://127.0.0.1:5000/getSystemWidePrices/${region}`)
       .then((res) => res.json())
       .then((res) => {
-        setGraphData(res);
+        setPoints(res.points);
       });
     fetch("http://127.0.0.1:5000/getCombinedWindandSolar")
       .then((res) => res.json())
-      .then((res) => setRenewData(res));
+      .then((res) => {
+        res.today && setRenewPoints(res.today)
+        res.tomorrow && setNextRenewPoints(res.tomorrow)
+      })
   }, []);
 
+  // filter out obsolete intervals from the past 
   useEffect(() => {
-    if (graphData.rtSppData && graphData.damSppData) {
-      let newRTPoints = [
-        ...graphData.rtSppData.map((e) => {
-          const now = new Date(e.interval);
-          const hoursElapsed =
-            (e.interval -
-              (e.interval -
-                1000 *
-                  (now.getHours() * 3600 +
-                    now.getMinutes() * 60 +
-                    now.getSeconds()))) /
-            3600000;
-          return {
-            hoursElapsed: hoursElapsed,
-            price: e[region],
-          };
-        }),
-      ];
-      let maxTimeStamp = Math.max(...newRTPoints.map((e) => e.hoursElapsed));
-      let newDAMPoints = [
-        ...graphData.damSppData
-          .map((e) => {
-            const now = new Date(e.interval);
-            const hoursElapsed =
-              (e.interval -
-                (e.interval -
-                  1000 *
-                    (now.getHours() * 3600 +
-                      now.getMinutes() * 60 +
-                      now.getSeconds()))) /
-              3600000;
-            return {
-              hoursElapsed: hoursElapsed,
-              price: e[region],
-            };
-          })
-          .filter((e) => e.hoursElapsed > maxTimeStamp),
-      ];
-      setPoints([...newRTPoints, ...newDAMPoints]);
-    }
-  }, [graphData]);
+    setAvailability([...availability
+                      .filter(e => e[0] + e[1] > nowInterval)
+                      .map(e => {
+                        const newStart = Math.max(e[0], nowInterval*30)
+                        return [newStart, e[0] + e[1] - newStart]
+                      })
+                    ])
+  }, [nowInterval])
 
   if (fontsLoaded) {
     return page === "graph" ? (
@@ -140,10 +80,11 @@ export default function App() {
         setDay={setDay}
         nowInterval={day === "currentDay" ? nowInterval : 0}
         setNowInterval={setNowInterval}
+        chosenTime={selectIndex >= 0 ? {...timeList[selectIndex], width: dryTime + washTime} : null}
       />
     ) : page === "schedule" ? (
       <Schedule
-        goHome={() => setPage("home")}
+        setPage={setPage}
         points={points}
         renewPoints={renewPoints.filter(
           (e) => Math.floor(e.hour * 2) >= nowInterval
@@ -159,6 +100,11 @@ export default function App() {
         dryPower={dryPower}
         todayAvailability={availability}
         tomorrowAvailability={nextAvailability}
+        timeList={timeList}
+        setTimeList={setTimeList}
+        selectIndex={selectIndex}
+        setSelectIndex={setSelectIndex}
+        
       />
     ) : page === "myinfo" ? (
       <MyInfo

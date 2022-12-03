@@ -58,6 +58,8 @@ export default function Graph(props) {
           timeField={"hoursElapsed"}
           valField={"price"}
           title={"Electricity Price ($/MWh)"}
+          chosenTime={props.chosenTime}
+          day={props.day}
         />
 
         <Button
@@ -77,6 +79,8 @@ export default function Graph(props) {
           timeField={"hour"}
           valField={"combined"}
           title="Wind + Solar Production (MW)"
+          chosenTime={props.chosenTime}
+          day={props.day}
         />
       </ScrollView>
       <Button
