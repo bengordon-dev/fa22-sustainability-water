@@ -185,7 +185,7 @@ export default function Schedule(props) {
       const time = new Date()
       const entry = props.timeList[props.selectIndex]
       const fire = new Date(time.getFullYear(), time.getMonth(), 
-      entry.day, entry.startTime)
+      entry.day + time.getDate(), entry.startTime)
       Notifications.postLocalNotification({
         body: 'Time to start laundry!',
         title: 'Launder',
