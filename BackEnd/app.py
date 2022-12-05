@@ -35,14 +35,14 @@ def getCombinedWindandSolar():
         today_pts = []
         tomorrow_pts = []
         for hour_entry in data_json["currentDay"]["data"].values():
-            entry = {"hour": hour_entry["hourEnding"]}
+            entry = {"hour": hour_entry["hourEnding"] - 0.5}
             if "actualWind" in hour_entry and "actualSolar" in hour_entry and hour_entry["actualWind"] != None and hour_entry["actualSolar"] != None:
                 entry["combined"] = hour_entry["actualWind"] + hour_entry["actualSolar"]
             else:
                 entry["combined"] = hour_entry["copHslWind"] + hour_entry["copHslSolar"]
             today_pts.append(entry)
         for hour_entry in data_json["nextDay"]["data"].values():
-            entry = {"hour": hour_entry["hourEnding"],
+            entry = {"hour": hour_entry["hourEnding"] - 0.5,
                     "combined": hour_entry["copHslWind"] + hour_entry["copHslSolar"]}
             tomorrow_pts.append(entry)
         return {"today": today_pts, "tomorrow": tomorrow_pts}

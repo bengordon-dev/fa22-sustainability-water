@@ -18,10 +18,21 @@ export default function OpenScreen(props) {
       // make svg > ../assets/OpenScreenBackground.svg
     >
       {/*  Add price <Text>Per MWh</Text> */}
-      {/* <Image
+      <Image
         style={styles.logo}
         source={require("../assets/launderLogo.jpg")}
-  />*/}
+      />
+      <Text
+        style={{
+          fontFamily: "nunito-semibold",
+          fontSize: 36,
+          textAlign: "center",
+          top: -165,
+        }}
+      >
+        {" "}
+        Launder{" "}
+      </Text>
       <Pressable
         style={styles.scheduleButton}
         onPress={() => props.setPage("schedule")}
@@ -62,7 +73,7 @@ const styles = StyleSheet.create({
     backgroundColor: "lightgreen",
     width: 290,
     height: 70,
-    bottom: -50,
+    bottom: 70,
     borderTopLeftRadius: 50,
     borderTopRightRadius: 50,
     borderBottomLeftRadius: 50,
@@ -72,7 +83,7 @@ const styles = StyleSheet.create({
     backgroundColor: "green",
     width: 290,
     height: 70,
-    bottom: -75,
+    bottom: 45,
     borderTopLeftRadius: 50,
     borderTopRightRadius: 50,
     borderBottomLeftRadius: 50,
@@ -82,7 +93,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#0D305C",
     width: 290,
     height: 70,
-    bottom: -100,
+    bottom: 20,
     borderTopLeftRadius: 50,
     borderTopRightRadius: 50,
     borderBottomLeftRadius: 50,

@@ -9,7 +9,7 @@ export default function GraphSVG(props) {
   return (
     <View width="100%" height={props.height} style={{alignItems: "center", justifyContent: "center"}}>
       <Svg height="100%" width={props.width} viewBox="0 0 180 140" >
-        <SVGText x="90" y="10" fontSize="9.5" fill="black" textAnchor="middle" fontWeight="600">{props.title}</SVGText>
+        <SVGText fontFamily="nunito-semibold" x="90" y="10" fontSize="10" fill="black" textAnchor="middle" fontWeight="bold">{props.title}</SVGText>
         <Line x1="19" y1="120" x2="170" y2="120" stroke="black" strokeWidth="2" />
         <Line x1="20" y1="20" x2="20" y2="120" stroke="black" strokeWidth="2" />
         {props.points.length > 0 && props.points.map((point, i) => {
@@ -28,15 +28,35 @@ export default function GraphSVG(props) {
           strokeWidth=".5"
           key={i}
         />)}
+        {props.points.length > 1 && <Line
+          x1={20 + (props.points[props.points.length - 1][props.timeField] - props.startHour)/hourRange*150}
+          x2={170}
+          y1={120-(props.points[props.points.length - 1][props.valField])/(props.maxVal)*100}
+          y2={120-(props.points[props.points.length - 1][props.valField])/(props.maxVal)*100}
+          stroke="red"
+          strokeWidth=".5"
+        />}
+        {props.points.length > 1 && <Line
+          x2={20 + (props.points[0][props.timeField] - props.startHour)/hourRange*150}
+          x1={20}
+          y1={120-(props.points[0][props.valField])/(props.maxVal)*100}
+          y2={120-(props.points[0][props.valField])/(props.maxVal)*100}
+          stroke="red"
+          strokeWidth=".5"
+        />}
         {[...Array(5).keys()].map(e => {
           const hours = props.startHour + e*hourRange/4
           const mins = Math.round((hours - Math.floor(hours))*60)
           return (
-            <SVGText key={e} x={20 + e*150/4 } y={130} fill="black" fontSize="5" textAnchor="middle">{`${Math.floor(hours)}:${mins < 10 ? "0" : ""}${mins}`}</SVGText>
+            <SVGText key={e} x={20 + e*150/4 } y={130} fontFamily="nunito-regular" fill="black" fontSize="6" textAnchor="middle">{`${Math.floor(hours)}:${mins < 10 ? "0" : ""}${mins}`}</SVGText>
         )})}
-        <SVGText x={14} y={120} fill="black" fontSize="5">{0}</SVGText>
-        <SVGText x={17 - 3*(Math.floor(props.maxVal/2)).toString().length} y={70} fill="black" fontSize="5">{Math.floor(props.maxVal/2)}</SVGText>
-        <SVGText x={17 - 3*(Math.floor(props.maxVal)).toString().length} y={25} fill="black" fontSize="5">{Math.floor(props.maxVal)}</SVGText>
+        <SVGText x={13.5} y={120} fill="black" fontFamily="nunito-regular" fontSize="6">{0}</SVGText>
+        <SVGText fontFamily="nunito-regular" x={17 - 3.5*(Math.floor(props.maxVal/2)).toString().length} y={70} fill="black" fontSize="6">
+          {Math.floor(props.maxVal/2)}
+        </SVGText>
+        <SVGText fontFamily="nunito-regular" x={17 - 3.5*(Math.floor(props.maxVal)).toString().length} y={25} fill="black" fontSize="6">
+          {Math.floor(props.maxVal)}
+        </SVGText>
         {props.availability.length > 0 && 
           props.availability.map((interval, i) => <Rect 
             x={20 + (interval[0] - props.startHour*60)/(hourRange*60)*150} 

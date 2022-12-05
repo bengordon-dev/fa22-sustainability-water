@@ -5,6 +5,8 @@ import {
   Button,
   TouchableOpacity,
   Image,
+  Pressable,
+  SafeAreaView
 } from "react-native";
 import { useState, useEffect } from "react";
 import {Notifications} from 'react-native-notifications';
@@ -13,16 +15,17 @@ import {Notifications} from 'react-native-notifications';
 
 function ButtonRow(props) {
   return <View style={styles.buttonRow}>
-    <Text style={{ fontSize: 16, marginRight: 5, marginLeft: 20 }}>
+    <Text style={{ fontFamily: "Nunito-Regular", fontSize: 16, marginRight: 5, marginLeft: 20 }}>
       {props.text}
     </Text>
     {props.options && props.options.map((option, i) => 
-      <View key={i} style={{backgroundColor: props.stateVar === option ? "green" : "white"}}>
-        <Button
-          onPress={() => props.callback(option)}
-          title={option.charAt(0).toUpperCase() + option.slice(1)}
-          color={props.stateVar === option ? "white" : "blue"}
-        />
+      <View key={i}>
+      <TouchableOpacity
+        onPress={() => props.callback(option)}
+        style={{backgroundColor: props.stateVar === option ? "green" : "white", borderRadius: 50, paddingHorizontal: 10, paddingVertical: 5, marginBottom: 5}}
+      >
+        <Text style={{fontSize: 16, fontFamily: "Nunito-Regular", color: props.stateVar === option ? "white" : "blue"}}>{option.charAt(0).toUpperCase() + option.slice(1)}</Text>
+      </TouchableOpacity>
       </View>
     )}
   </View>
@@ -201,54 +204,86 @@ export default function Schedule(props) {
 
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.backButton}
-        activeOpacity={0.5}
-        onPress={() => props.setPage("home")}
-      >
-        <Image
-          source={require("../assets/schedulePage_return.jpg")}
-          //style={styles.buttonImageIconStyle}
-        />
-      </TouchableOpacity>
-      <Text style={styles.title}> </Text>
-      <ButtonRow 
-        text="Days included:" 
+    <SafeAreaView style={styles.container}>
+      <View style={styles.backButtonRow}>
+        <TouchableOpacity
+          style={styles.backButton}
+          activeOpacity={0.5}
+          onPress={() => props.setPage("home")}
+        >
+          <Image
+            source={require("../assets/return.jpg")}
+          />
+        </TouchableOpacity>
+        <Text style={styles.backButtonText}>Schedule</Text>
+      </View>
+
+      <ButtonRow
+        text="Days included:"
         options={["today", "tomorrow", "both"]}
         stateVar={daysIncluded}
         callback={setDaysIncluded}
       />
-      <ButtonRow 
-        text="Optimize for:" 
+      <ButtonRow
+        style={{
+          fontFamily: "nunito-regular",
+        }}
+        text="Optimize for:"
         options={["price", "renewables", "both"]}
         stateVar={optimizeVal}
         callback={setOptimizeVal}
       />
-      
-      <Button onPress={() => selectTimes(optimizeVal)} title="Pick Times" />
+
+      <TouchableOpacity
+        onPress={() => selectTimes(optimizeVal)}
+        style={styles.buttonRowButton}
+      >
+        <Text style={styles.buttonRowButtonText}>Select Times</Text>
+      </TouchableOpacity>
       <View style={styles.schedule}>
         <View style={styles.column}>
           <Text style={styles.washDryText}>Wash</Text>
           <View style={styles.twoRectWrapper}>
             <View style={styles.rectWrapper}>
-              <Text style={{ marginRight: 10, fontSize: 20 }}>Start</Text>
+              <Text
+                style={styles.startEnd}
+              >
+                Start
+              </Text>
               <View style={[styles.rectangle, { borderRightWidth: 1 }]}>
-                {props.timeList && props.timeList.map((e, i) => <Text key={i} 
-                  style={{backgroundColor: props.selectIndex === i ? "orange" : "#B1C6E1"}} 
-                  onPress={() => props.setSelectIndex(i)}>
-                  {displayTime(e, e.startTime)}
-                </Text>)}
+                {props.timeList &&
+                  props.timeList.map((e, i) => (
+                    <Text
+                      key={i}
+                      style={[
+                        styles.rowEntry,
+                        {backgroundColor: props.selectIndex === i ? "orange" : "#B1C6E1"}
+                      ]}
+                      onPress={() => props.setSelectIndex(i)}
+                    >
+                      {displayTime(e, e.startTime)}
+                    </Text>
+                  ))}
               </View>
             </View>
             <View style={styles.rectWrapper}>
-              <Text style={{ marginRight: 10, fontSize: 20 }}>End</Text>
+              <Text style={styles.startEnd}>
+                End
+              </Text>
               <View style={styles.rectangle}>
-              {props.timeList && props.timeList.map((e, i) => <Text key={i} 
-                  style={{backgroundColor: props.selectIndex === i ? "orange" : "#B1C6E1"}} 
-                  onPress={() => props.setSelectIndex(i)}>
-                {displayTime(e, e.startTime + props.washTime)}
-              </Text>)}
+                {props.timeList &&
+                  props.timeList.map((e, i) => (
+                    <Text
+                      key={i}
+                      style={[
+                        styles.rowEntry,
+                        {backgroundColor: props.selectIndex === i ? "orange" : "#B1C6E1"}
+                      ]}
+                      onPress={() => props.setSelectIndex(i)}
+                    >
+                      {displayTime(e, e.startTime + props.washTime)}
+                    </Text>
+                  ))}
               </View>
             </View>
           </View>
@@ -257,59 +292,80 @@ export default function Schedule(props) {
           <Text style={styles.washDryText}>Dry</Text>
           <View style={styles.twoRectWrapper}>
             <View style={styles.rectWrapper}>
-              <Text style={{ marginRight: 10, fontSize: 20 }}>End</Text>
+              <Text
+                style={styles.startEnd}
+              >
+                End
+              </Text>
               <View style={[styles.rectangle, { borderRightWidth: 1 }]}>
-              {props.timeList && props.timeList.map((e, i) => <Text key={i} 
-                  style={{backgroundColor: props.selectIndex === i ? "orange" : "#B1C6E1"}} 
-                  onPress={() => props.setSelectIndex(i)}>
-                {displayTime(e, e.startTime + props.washTime + props.dryTime)}
-              </Text>)}
+                {props.timeList &&
+                  props.timeList.map((e, i) => (
+                    <Text
+                      key={i}
+                      style={[
+                        styles.rowEntry,
+                        {backgroundColor: props.selectIndex === i ? "orange" : "#B1C6E1"}
+                      ]}
+                      onPress={() => props.setSelectIndex(i)}
+                    >
+                      {displayTime(
+                        e,
+                        e.startTime + props.washTime + props.dryTime
+                      )}
+                    </Text>
+                  ))}
               </View>
             </View>
             <View style={styles.rectWrapper}>
-              <Text style={{ marginRight: 10, fontSize: 20 }}>Price</Text>
+              <Text style={styles.startEnd}>
+                Price
+              </Text>
               <View style={styles.rectangle}>
-                {props.timeList && props.timeList.map((e, i) => <Text key={i} 
-                  style={{backgroundColor: props.selectIndex === i ? "orange" : "#B1C6E1"}} 
-                  onPress={() => props.setSelectIndex(i)}>
-                  {Math.round(e.price*1000)/10} cents
-                </Text>)}
+                {props.timeList &&
+                  props.timeList.map((e, i) => (
+                    <Text key={i}
+                      style={[
+                        styles.rowEntry,
+                        {backgroundColor: props.selectIndex === i ? "orange" : "#B1C6E1"}
+                      ]}
+                      onPress={() => props.setSelectIndex(i)}
+                    >
+                      {Math.round(e.price * 1000) / 10} cents
+                    </Text>
+                  ))}
               </View>
             </View>
-          </View>          
+          </View>
         </View>
       </View>
-      <View style={styles.buttons}>
-        <View style={styles.buttonOne}>
-          {/*<Button onPress={props.goHome} title="Go home" />*/}
-          <Button onPress={() => postNotification() }title="Remind me" />
-        </View>
-        <View>
-          <Button onPress={() => props.setPage("graph")} title="Energy data" />
-        </View>
-      </View>
-    </View>
+      <Pressable
+        style={styles.remindButton}
+        onPress={() => postNotification()}
+      >
+        <Text style={styles.buttonOne}>Remind Me</Text>
+      </Pressable>
+      <Pressable
+        style={styles.energyDataButton}
+        onPress={() => props.setPage("graph")}
+      >
+        <Text style={styles.buttonTwo}>Energy Data</Text>
+      </Pressable>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 40,
-    marginTop: 70,
     flex: 1,
     backgroundColor: "#fff",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "flex-start",
   },
-  title: {
-    // flex: 1,
-    fontSize: 64,
-  },
   schedule: {
     flexDirection: "column",
     width: "100%",
-    marginTop: 50,
+    marginTop: 30,
     flexDirection: "row",
   },
   column: {
@@ -319,13 +375,13 @@ const styles = StyleSheet.create({
   },
   twoRectWrapper: {
     flexDirection: "row",
-    width: "90%",
+    width: "95%",
     alignItems: "center",
     marginTop: 15,
   },
   rectWrapper: {
     width: "50%",
-    alignItems: "center"
+    alignItems: "center",
   },
   rectangle: {
     backgroundColor: "#B1C6E1",
@@ -334,6 +390,7 @@ const styles = StyleSheet.create({
   },
   washDryText: {
     fontSize: 40,
+    fontFamily: "Nunito-SemiBold",
   },
   buttonRow: {
     flexDirection: "row",
@@ -346,9 +403,65 @@ const styles = StyleSheet.create({
   },
   buttonOne: {
     flexDirection: "row",
+    textAlign: "center",
+    fontFamily: "Nunito-SemiBold",
+    fontSize: 24,
+    bottom: -18,
+  },
+  buttonTwo: {
+    flexDirection: "row",
+    textAlign: "center",
+    fontFamily: "Nunito-SemiBold",
+    fontSize: 24,
+    bottom: -18,
+    color: "white"
+  },
+  backButtonRow: {
+    flexDirection: "row", 
+    alignItems: "center", 
+    width: "100%", 
+    marginBottom: 15
   },
   backButton: {
-    //flexDirection: "row",
-    left: -85,
+    left: 15,
+    marginRight: "auto"
   },
+  backButtonText: {
+    fontFamily: "Nunito-SemiBold",
+    fontSize: 48,
+    marginRight: "22%",
+  },
+  remindButton: {
+    backgroundColor: "#B1C6E1",
+    width: 250,
+    height: 70,
+    marginTop: 35,
+    borderRadius: 50,
+  },
+  energyDataButton: {
+    backgroundColor: "#31864B",
+    width: 250,
+    height: 70,
+    marginTop: 25,
+    borderRadius: 50,
+  },
+  buttonRowButton: {
+    backgroundColor: "green", 
+    borderRadius: 50, 
+    paddingHorizontal: 10, 
+    paddingVertical: 5, 
+    marginBottom: 5
+  },
+  buttonRowButtonText: {
+    fontSize: 16, fontFamily: "Nunito-Regular", color: "white"
+  },
+  startEnd: {
+    fontSize: 20,
+    fontFamily: "nunito-regular",
+  },
+  rowEntry: {
+    fontFamily: "nunito-regular",
+    fontSize: 13,
+    paddingHorizontal: 1
+  }
 });

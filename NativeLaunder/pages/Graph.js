@@ -7,6 +7,7 @@ import {
   ScrollView,
   Button,
   SafeAreaView,
+  Pressable
 } from "react-native";
 import { useState, useEffect } from "react";
 import Svg, { Rect, Circle, Line } from "react-native-svg";
@@ -35,21 +36,22 @@ export default function Graph(props) {
   }, [props.points]);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <TouchableOpacity
-        style={styles.backButton}
-        activeOpacity={0.5}
-        onPress={() => props.setPage("home")}
-      >
-        <Image
-          source={require("../assets/dataPage_return.jpg")}
-          //style={styles.buttonImageIconStyle}
-        />
-      </TouchableOpacity>
+    <SafeAreaView style={{ flex: 1, alignItems: "center"}}>
+     <View style={styles.backButtonRow}>
+        <TouchableOpacity
+          style={styles.backButton}
+          activeOpacity={0.5}
+          onPress={() => props.setPage("home")}
+        >
+          <Image
+            source={require("../assets/return.jpg")}
+          />
+        </TouchableOpacity>
+        <Text style={styles.backButtonText}>Data</Text>
+      </View>
       {/* <Button title="Go Home" onPress={() => props.setPage("home")}></Button>*/}
-      <ScrollView contentContainerStyle={styles.container}>
         <GraphSVG
-          height={350}
+          height={290}
           width={"90%"}
           points={props.points}
           startHour={props.nowInterval / 2}
@@ -62,15 +64,16 @@ export default function Graph(props) {
           day={props.day}
         />
 
-        <Button
-          title={props.day === "currentDay" ? "Current Day" : "Next Day"}
+        <TouchableOpacity
           onPress={() =>
             props.setDay(props.day == "currentDay" ? "nextDay" : "currentDay")
           }
-        />
+        >
+          <Text style={styles.daySelector}>{props.day === "currentDay" ? "Current Day" : "Next Day"}</Text>
+        </TouchableOpacity>
 
         <GraphSVG
-          height={350}
+          height={290}
           width={"90%"}
           points={props.renewPoints}
           startHour={props.nowInterval / 2}
@@ -82,11 +85,12 @@ export default function Graph(props) {
           chosenTime={props.chosenTime}
           day={props.day}
         />
-      </ScrollView>
-      <Button
-        title="Schedule"
-        onPress={() => props.setPage("schedule")}
-      ></Button>
+        <Pressable
+          style={styles.scheduleButton}
+          onPress={() => props.setPage("schedule")}
+        >
+          <Text style={styles.scheduleButtonText}>Schedule</Text>
+        </Pressable>
     </SafeAreaView>
   );
 }
@@ -99,8 +103,38 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     //height: "100%"
   },
-  backButton: {
-    //flexDirection: "row",
-    left: 5,
+  backButtonRow: {
+    flexDirection: "row", 
+    alignItems: "center", 
+    width: "100%", 
   },
+  backButton: {
+    left: 15,
+    marginRight: "auto"
+  },
+  backButtonText: {
+    fontFamily: "Nunito-SemiBold",
+    fontSize: 48,
+    marginRight: "36%",
+  },
+  scheduleButton: {
+    backgroundColor: "#48C16D",
+    width: 230,
+    height: 70,
+    borderRadius: 50,
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  scheduleButtonText: {
+    flexDirection: "row",
+    textAlign: "center",
+    fontFamily: "Nunito-SemiBold",
+    fontSize: 24,
+  },
+  daySelector: {
+    color: "#007AFF", 
+    fontSize: 20, 
+    fontFamily: "nunito-semibold",
+    marginBottom: 10
+  }
 });

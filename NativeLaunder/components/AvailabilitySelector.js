@@ -107,26 +107,33 @@ export default function AvailabilitySelector(props) {
 
   return (
     <View>
-      <Button
-          title={props.day === "currentDay" ? "Current Day" : "Next Day"}
-          onPress={() => props.setDay(props.day == "currentDay" ? "nextDay" : "currentDay")}
-      />
+      <TouchableOpacity
+        title={props.day === "currentDay" ? "Current Day" : "Next Day"}
+        onPress={() => props.setDay(props.day == "currentDay" ? "nextDay" : "currentDay")}
+        style={{alignItems: "center", justifyContent: "center"}}
+      >
+        <Text style={styles.daySelector}>{props.day === "currentDay" ? "Current Day" : "Next Day"}</Text>
+      </TouchableOpacity>
       <ScrollView contentContainerStyle={styles.container}>
         {[...Array(24*2 - props.nowInterval).keys()].map((e, i) => {
           const time = new Date()
-          time.setHours(Math.floor((e + props.nowInterval)*30 / 60))
-          time.setMinutes((e + props.nowInterval)*30 % 60)
-          let timeString = time.toTimeString().split(" ")[0]
-          timeString = timeString.substring(0, timeString.length - 3)
+          let hours = (Math.floor((e + props.nowInterval)*30 / 60)) % 24
+          const minutes = (e + props.nowInterval)*30 % 60
+          let secondHrs = (hours + (minutes + 30 >= 60 ? 1 : 0)) % 24
+          const firstHalf = hours < 12 ? "AM" : "PM"
+          const secondHalf = secondHrs < 12 ? "AM" : "PM"
+          secondHrs = (secondHrs % 12 === 0 ? 12 : secondHrs % 12)
+          hours = (hours % 12 === 0 ? 12 : hours % 12)
+          const secondMins = (minutes + 30) % 60
+
+          timeString = `${hours}:${minutes < 10 ?  "0" : ""}${minutes}${firstHalf !== secondHalf ? " " + firstHalf.toString() : ""} - ${secondHrs}:${secondMins < 10 ?  "0" : ""}${secondMins} ${secondHalf}`
           return (
           <View style={{width: "100%", flexDirection: "row"}} key={i}>
-            <Text style={{width: "20%"}}>{timeString}</Text>
-            <TouchableOpacity style={{width: "80%", height: 20, backgroundColor: selectedSectors.includes(e + props.nowInterval) ? "#9f9" : "#999"}} 
-                  onPress={() => pressSector(e + props.nowInterval) /*{
-                          selectedSectors.includes(i) ? 
-                          setSelectedSectors([...selectedSectors.filter(sector => sector !== i)])
-                  : setSelectedSectors([...selectedSectors, i])}*/}>
-            </TouchableOpacity>
+            <Text style={{width: "42%", fontFamily: "nunito-regular", paddingLeft: 4}}>{timeString}</Text>
+            <TouchableOpacity 
+              style={{width: "80%", height: 20, backgroundColor: selectedSectors.includes(e + props.nowInterval) ? "#9f9" : "#999"}} 
+              onPress={() => pressSector(e + props.nowInterval)
+            }/>
           </View>
           )
         })}
@@ -137,9 +144,15 @@ export default function AvailabilitySelector(props) {
 
 const styles = StyleSheet.create({
   container: {
-    width: 300,
+    width: 350,
     backgroundColor: "#eee",
     alignItems: "flex-start",
     justifyContent: "center",
   },
+  daySelector: {
+    color: "#007AFF", 
+    fontSize: 20, 
+    fontFamily: "nunito-semibold",
+    marginBottom: 5
+  }
 });
