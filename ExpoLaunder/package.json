@@ -1,0 +1,27 @@
+{
+  "name": "launder",
+  "version": "1.0.0",
+  "main": "node_modules/expo/AppEntry.js",
+  "scripts": {
+    "start": "expo start --tunnel",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "@expo/webpack-config": "^0.17.0",
+    "expo": "~46.0.13",
+    "expo-status-bar": "~1.4.0",
+    "react": "18.0.0",
+    "react-dom": "18.0.0",
+    "react-native": "0.69.6",
+    "react-native-geolocation-service": "^5.3.1",
+    "react-native-svg": "^12.3.0",
+    "react-native-web": "~0.18.7",
+    "expo-app-loading": "~2.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.9"
+  },
+  "private": true
+}
