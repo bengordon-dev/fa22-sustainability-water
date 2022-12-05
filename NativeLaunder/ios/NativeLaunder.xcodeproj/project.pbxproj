@@ -16,6 +16,7 @@
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		472DA2B644A04F178B7CBA81 /* Nunito-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9615DEDD8F0F431EA9FE657F /* Nunito-Regular.ttf */; };
 		0C11C084563C479193DF1829 /* Nunito-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6F3AE12083684555A634F401 /* Nunito-SemiBold.ttf */; };
+		50F6204E588B4E5E848D82DF /* Nunito-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 792F3180E7C04188AE0874BC /* Nunito-ExtraBold.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +49,7 @@
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		9615DEDD8F0F431EA9FE657F /* Nunito-Regular.ttf */ = {isa = PBXFileReference; name = "Nunito-Regular.ttf"; path = "../assets/fonts/Nunito-Regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		6F3AE12083684555A634F401 /* Nunito-SemiBold.ttf */ = {isa = PBXFileReference; name = "Nunito-SemiBold.ttf"; path = "../assets/fonts/Nunito-SemiBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		792F3180E7C04188AE0874BC /* Nunito-ExtraBold.ttf */ = {isa = PBXFileReference; name = "Nunito-ExtraBold.ttf"; path = "../assets/fonts/Nunito-ExtraBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -158,6 +160,7 @@
 			children = (
 				9615DEDD8F0F431EA9FE657F /* Nunito-Regular.ttf */,
 				6F3AE12083684555A634F401 /* Nunito-SemiBold.ttf */,
+				792F3180E7C04188AE0874BC /* Nunito-ExtraBold.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -261,6 +264,7 @@
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				472DA2B644A04F178B7CBA81 /* Nunito-Regular.ttf in Resources */,
 				0C11C084563C479193DF1829 /* Nunito-SemiBold.ttf in Resources */,
+				50F6204E588B4E5E848D82DF /* Nunito-ExtraBold.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

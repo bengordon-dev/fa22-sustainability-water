@@ -22,7 +22,7 @@ function ButtonRow(props) {
       <View key={i}>
       <TouchableOpacity
         onPress={() => props.callback(option)}
-        style={{backgroundColor: props.stateVar === option ? "green" : "white", borderRadius: 50, paddingHorizontal: 10, paddingVertical: 5, marginBottom: 5}}
+        style={{backgroundColor: props.stateVar === option ? "green" : "white", borderRadius: 50, paddingHorizontal: 10, paddingVertical: 5}}
       >
         <Text style={{fontSize: 16, fontFamily: "Nunito-Regular", color: props.stateVar === option ? "white" : "blue"}}>{option.charAt(0).toUpperCase() + option.slice(1)}</Text>
       </TouchableOpacity>
@@ -33,8 +33,6 @@ function ButtonRow(props) {
 
 
 export default function Schedule(props) {
-  const [daysIncluded, setDaysIncluded] = useState("today") // "today", "tomorrow", or "both"
-  const [optimizeVal, setOptimizeVal] = useState("both") // "price", "renewables", or "both"
   const currentTime = new Date()
   const month = currentTime.getMonth()
   const today = currentTime.getDate()  
@@ -94,7 +92,7 @@ export default function Schedule(props) {
   }
 
   // "renewables", "price", "both"
-  function selectTimes(optimizeVal) {
+  function selectTimes(optimizeVal, daysIncluded) {
     let availability = []
     if (daysIncluded === "today") {
       availability = [...props.todayAvailability.map(e => [...e, 0])]
@@ -221,8 +219,8 @@ export default function Schedule(props) {
       <ButtonRow
         text="Days included:"
         options={["today", "tomorrow", "both"]}
-        stateVar={daysIncluded}
-        callback={setDaysIncluded}
+        stateVar={props.daysIncluded}
+        callback={props.setDaysIncluded}
       />
       <ButtonRow
         style={{
@@ -230,12 +228,12 @@ export default function Schedule(props) {
         }}
         text="Optimize for:"
         options={["price", "renewables", "both"]}
-        stateVar={optimizeVal}
-        callback={setOptimizeVal}
+        stateVar={props.optimizeVal}
+        callback={props.setOptimizeVal}
       />
 
       <TouchableOpacity
-        onPress={() => selectTimes(optimizeVal)}
+        onPress={() => selectTimes(props.optimizeVal, props.daysIncluded)}
         style={styles.buttonRowButton}
       >
         <Text style={styles.buttonRowButtonText}>Select Times</Text>
@@ -397,6 +395,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-start",
     width: "100%",
+    marginBottom: 5
   },
   buttons: {
     flexDirection: "column",
@@ -427,9 +426,9 @@ const styles = StyleSheet.create({
     marginRight: "auto"
   },
   backButtonText: {
-    fontFamily: "Nunito-SemiBold",
+    fontFamily: "Nunito-ExtraBold",
     fontSize: 48,
-    marginRight: "22%",
+    marginRight: "23%",
   },
   remindButton: {
     backgroundColor: "#B1C6E1",

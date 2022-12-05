@@ -11,21 +11,26 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 export default function App() {
-  const [fontsLoaded, setFontsLoaded] = useState(false);
+  const region = "lzLcra"; // near Austin. future versions will have location services
   const [page, setPage] = useState("home");
+  // my free hours
   const [availability, setAvailability] = useState([]); // current day
   const [nextAvailability, setNextAvailability] = useState([]); // next day
+  // myInfo page inputs 
   const [washTime, setWashTime] = useState(30);
   const [dryTime, setDryTime] = useState(60);
   const [washPower, setWashPower] = useState(850);
   const [dryPower, setDryPower] = useState(4000);
+  // data points, obtained from API
   const [points, setPoints] = useState([]);
   const [renewPoints, setRenewPoints] = useState([]); // current day
   const [nextRenewPoints, setNextRenewPoints] = useState([]); // next day
   const [day, setDay] = useState("currentDay"); // damSppData or rtSppData
+  // set in schedule page
+  const [daysIncluded, setDaysIncluded] = useState("today") // "today", "tomorrow", or "both"
+  const [optimizeVal, setOptimizeVal] = useState("both") // "price", "renewables", or "both"
   const [timeList, setTimeList] = useState([])
   const [selectIndex, setSelectIndex] = useState(-1)
-  const region = "lzLcra";
   // floor(minutes since midnight / 30). Updated whenever switching between pages/components.
   const [nowInterval, setNowInterval] = useState(0);
 
@@ -114,6 +119,10 @@ export default function App() {
       setTimeList={setTimeList}
       selectIndex={selectIndex}
       setSelectIndex={setSelectIndex}
+      daysIncluded={daysIncluded}
+      setDaysIncluded={setDaysIncluded}
+      optimizeVal={optimizeVal}
+      setOptimizeVal={setOptimizeVal}
       
     />
   ) : page === "myinfo" ? (

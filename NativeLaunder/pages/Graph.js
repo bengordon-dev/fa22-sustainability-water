@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     marginRight: "auto"
   },
   backButtonText: {
-    fontFamily: "Nunito-SemiBold",
+    fontFamily: "Nunito-extrabold",
     fontSize: 48,
     marginRight: "36%",
   },
