@@ -22,7 +22,6 @@ export default function AvailabilitySelector(props) {
     const endTime = startTime + 30
 
     if (selectedSectors.includes(index)) { // deselect
-      //setSelectedSectors([...selectedSectors.filter(sector => sector !== i)])
       // find what interval we're in 
       let intervalIndex = -1
       for (let i = 0; intervalIndex < 0 && i < props.freeIntervals.length; i++) {
@@ -53,7 +52,6 @@ export default function AvailabilitySelector(props) {
         newInterval[1] = startTime - newInterval[0]
         let otherInterval = [endTime, oldEnd - endTime]
         props.setFreeIntervals([...props.freeIntervals.slice(0, intervalIndex), newInterval, otherInterval, ...props.freeIntervals.slice(intervalIndex + 1)])
-
       }
 
     } else { 
@@ -71,7 +69,6 @@ export default function AvailabilitySelector(props) {
           afterIndex = i
         }
       }
-      // think - is there an interval directly before, is there one directly after
       // making a new interval (nothing before, nothing after)
       if (beforeIndex == -1 && afterIndex == -1) {
         let newInterval = [startTime, 30]

@@ -1,20 +1,10 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  Pressable,
-  Button,
-  ImageBackground,
-} from "react-native";
-import { useState, useEffect } from "react";
+import { StyleSheet, Text, Image, Pressable, ImageBackground } from "react-native";
 
 export default function OpenScreen(props) {
   return (
     <ImageBackground
       style={styles.container}
       source={require("../assets/BackOpenScreen.jpg")}
-      // make svg > ../assets/OpenScreenBackground.svg
     >     
       <Image
         style={styles.logo}

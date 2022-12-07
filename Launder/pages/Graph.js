@@ -1,17 +1,6 @@
-import {
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-  Text,
-  View,
-  ScrollView,
-  Button,
-  SafeAreaView,
-  Pressable
+import { StyleSheet, Image, TouchableOpacity, Text, View, SafeAreaView, Pressable
 } from "react-native";
 import { useState, useEffect } from "react";
-import Svg, { Rect, Circle, Line } from "react-native-svg";
-import { Text as SVGText } from "react-native-svg";
 import GraphSVG from "../components/GraphSVG";
 
 export default function Graph(props) {
@@ -49,16 +38,13 @@ export default function Graph(props) {
         </TouchableOpacity>
         <Text style={styles.backButtonText}>Data</Text>
       </View>
-      {/* <Button title="Go Home" onPress={() => props.setPage("home")}></Button>*/}
         <GraphSVG
-          height={290}
-          width={"90%"}
+          height={290} width={"90%"}
           points={props.points}
           startHour={props.nowInterval / 2}
           availability={props.availability}
           maxVal={maxPrice}
-          timeField={"hoursElapsed"}
-          valField={"price"}
+          timeField={"hoursElapsed"} valField={"price"}
           title={"Electricity Price ($/MWh)"}
           chosenTime={props.chosenTime}
           day={props.day}
@@ -73,14 +59,12 @@ export default function Graph(props) {
         </TouchableOpacity>
 
         <GraphSVG
-          height={290}
-          width={"90%"}
+          height={290} width={"90%"}
           points={props.renewPoints}
           startHour={props.nowInterval / 2}
           availability={props.availability}
           maxVal={maxRenewProd}
-          timeField={"hour"}
-          valField={"combined"}
+          timeField={"hour"} valField={"combined"}
           title="Wind + Solar Production (MW)"
           chosenTime={props.chosenTime}
           day={props.day}
