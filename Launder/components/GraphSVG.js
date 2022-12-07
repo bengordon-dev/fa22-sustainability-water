@@ -28,7 +28,7 @@ export default function GraphSVG(props) {
           strokeWidth=".5"
           key={i}
         />)}
-        {props.points.length > 1 && <Line
+        {props.points.length >= 1 && <Line
           x1={20 + (props.points[props.points.length - 1][props.timeField] - props.startHour)/hourRange*150}
           x2={170}
           y1={120-(props.points[props.points.length - 1][props.valField])/(props.maxVal)*100}
@@ -36,7 +36,7 @@ export default function GraphSVG(props) {
           stroke="red"
           strokeWidth=".5"
         />}
-        {props.points.length > 1 && <Line
+        {props.points.length >= 1 && <Line
           x2={20 + (props.points[0][props.timeField] - props.startHour)/hourRange*150}
           x1={20}
           y1={120-(props.points[0][props.valField])/(props.maxVal)*100}

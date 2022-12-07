@@ -1,17 +1,7 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  Button,
-  TouchableOpacity,
-  Image,
-  Pressable,
-  SafeAreaView
+import { StyleSheet, Text, View, TouchableOpacity,Image, Pressable, SafeAreaView
 } from "react-native";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import {Notifications} from 'react-native-notifications';
-
-
 
 function ButtonRow(props) {
   return <View style={styles.buttonRow}>
@@ -22,15 +12,16 @@ function ButtonRow(props) {
       <View key={i}>
       <TouchableOpacity
         onPress={() => props.callback(option)}
-        style={{backgroundColor: props.stateVar === option ? "green" : "white", borderRadius: 50, paddingHorizontal: 10, paddingVertical: 5}}
+        style={[{backgroundColor: props.stateVar === option ? "green" : "white"}, styles.buttonRowButton]}
       >
-        <Text style={{fontSize: 16, fontFamily: "Nunito-Regular", color: props.stateVar === option ? "white" : "blue"}}>{option.charAt(0).toUpperCase() + option.slice(1)}</Text>
+        <Text style={[styles.buttonRowButtonText, {color: props.stateVar === option ? "white" : "blue"}]}>
+          {option.charAt(0).toUpperCase() + option.slice(1)}
+        </Text>
       </TouchableOpacity>
       </View>
     )}
   </View>
 }
-
 
 export default function Schedule(props) {
   const currentTime = new Date()
@@ -50,10 +41,8 @@ export default function Schedule(props) {
     let data = props.points
     if (data.length === 0) return NaN
     // naive approach
-    let curTime = data[0].hoursElapsed*60;
     let index = 0;
-    while (index < data.length && curTime < minute) {
-      curTime = data[index].hoursElapsed*60;
+    while (index < data.length && data[index].hoursElapsed*60 < minute) {
       index++
     }
     if (index === 0) {
@@ -62,6 +51,8 @@ export default function Schedule(props) {
     if (index === data.length) {
       return multiplier * data[data.length - 1].price/60/1000000
     }
+    // note - price is price per megawatt hour. washPower and dryPower are in watts
+    // the interval of time here is a minute
     return multiplier * (data[index - 1].price + 
       (data[index].price - data[index - 1].price) * 
       (minute - (data[index - 1].hoursElapsed*60)) / 
@@ -69,14 +60,13 @@ export default function Schedule(props) {
       / 60 / 1000000    
   }
 
+  // units: MW
   function renewablesAtMinute(minute, day) {
     let data = day === 0 ? props.renewPoints : props.nextRenewPoints
     if (data.length === 0) return NaN
     // naive approach
-    let curTime = data[0].hour*60;
     let index = 0;
-    while (index < data.length && curTime < minute) {
-      curTime = data[index].hour*60;
+    while (index < data.length && data[index].hour*60 < minute) {
       index++
     }
     if (index === 0) {
@@ -91,7 +81,7 @@ export default function Schedule(props) {
       ((data[index].hour*60) - (data[index - 1].hour*60))
   }
 
-  // "renewables", "price", "both"
+  // Scheduling algorithm. Each argument corresponds to a button row
   function selectTimes(optimizeVal, daysIncluded) {
     let availability = []
     if (daysIncluded === "today") {
@@ -115,11 +105,8 @@ export default function Schedule(props) {
            : 0
     }
 
-
     let rankings = [];
     for (let timeIndex = 0; timeIndex < availability.length; timeIndex++) {
-      //let minPrice = Number.MAX_SAFE_INTEGER
-      //let bestTime = 0;
       // algorithm for finding the first time price
       let interval = availability[timeIndex]
       let startTime = interval[0];
@@ -127,8 +114,6 @@ export default function Schedule(props) {
       let day = interval[2]
       let totalRenew = 0
       let totalPrice = 0;
-
-      // note - price is price per megawatt hour. washPower and dryPower are in watts, and the time interval of each minute is obviously a minute
 
       for (let i = 0; i < props.washTime; i++) {
         totalPrice += priceForMinute(startTime + i, props.washPower);
@@ -142,10 +127,9 @@ export default function Schedule(props) {
       let minPrice = totalPrice
       let bestTime = startTime;
       let lastRenew = totalRenew;
-      let minRenew = totalRenew;
       let minVal = optimizeFunc(lastPrice, lastRenew)
 
-      // algorithm for finding the next time's price (based on sliding window)
+      // algorithm for finding the best time's price (based on sliding window)
       let optimizations = 0;
       for (let i = 1; i < intervalLength - props.washTime - props.dryTime; i++) {
         totalPrice = lastPrice + 
@@ -155,7 +139,6 @@ export default function Schedule(props) {
         totalRenew = lastRenew +
           renewablesAtMinute(startTime + props.washTime + props.dryTime + i, day) 
           - renewablesAtMinute(startTime + i - 1, day)
-          //+ optimizeFunc(startTime + props.washTime + i, props.washPower - props.dryPower, day)
         let val = optimizeFunc(totalPrice, totalRenew)
         if (val < minVal) {
           minPrice = totalPrice;
@@ -168,7 +151,6 @@ export default function Schedule(props) {
       }
       rankings.push({day: interval[2], startTime: bestTime, price: minPrice, val: minVal})
     }
-    
     rankings.sort((a, b) => a.val - b.val)
     props.setSelectIndex(-1)
     props.setTimeList(rankings)
@@ -197,9 +179,7 @@ export default function Schedule(props) {
         fireDate: fire.toISOString()// only iOS
       }, 0);
     }
-    
   }
-
 
   return (
     <SafeAreaView style={styles.container}>
@@ -234,27 +214,21 @@ export default function Schedule(props) {
 
       <TouchableOpacity
         onPress={() => selectTimes(props.optimizeVal, props.daysIncluded)}
-        style={styles.buttonRowButton}
+        style={[styles.buttonRowButton, {backgroundColor: "green", marginBottom: 5}]}
       >
-        <Text style={styles.buttonRowButtonText}>Select Times</Text>
+        <Text style={[styles.buttonRowButtonText, {color: "white"}]}>Select Times</Text>
       </TouchableOpacity>
       <View style={styles.schedule}>
         <View style={styles.column}>
           <Text style={styles.washDryText}>Wash</Text>
           <View style={styles.twoRectWrapper}>
             <View style={styles.rectWrapper}>
-              <Text
-                style={styles.startEnd}
-              >
-                Start
-              </Text>
+              <Text style={styles.startEnd}>Start</Text>
               <View style={[styles.rectangle, { borderRightWidth: 1 }]}>
                 {props.timeList &&
                   props.timeList.map((e, i) => (
-                    <Text
-                      key={i}
-                      style={[
-                        styles.rowEntry,
+                    <Text key={i}
+                      style={[styles.rowEntry,
                         {backgroundColor: props.selectIndex === i ? "orange" : "#B1C6E1"}
                       ]}
                       onPress={() => props.setSelectIndex(i)}
@@ -265,16 +239,12 @@ export default function Schedule(props) {
               </View>
             </View>
             <View style={styles.rectWrapper}>
-              <Text style={styles.startEnd}>
-                End
-              </Text>
+              <Text style={styles.startEnd}>End</Text>
               <View style={styles.rectangle}>
                 {props.timeList &&
                   props.timeList.map((e, i) => (
-                    <Text
-                      key={i}
-                      style={[
-                        styles.rowEntry,
+                    <Text key={i}
+                      style={[styles.rowEntry,
                         {backgroundColor: props.selectIndex === i ? "orange" : "#B1C6E1"}
                       ]}
                       onPress={() => props.setSelectIndex(i)}
@@ -290,40 +260,28 @@ export default function Schedule(props) {
           <Text style={styles.washDryText}>Dry</Text>
           <View style={styles.twoRectWrapper}>
             <View style={styles.rectWrapper}>
-              <Text
-                style={styles.startEnd}
-              >
-                End
-              </Text>
+              <Text style={styles.startEnd}>End</Text>
               <View style={[styles.rectangle, { borderRightWidth: 1 }]}>
                 {props.timeList &&
                   props.timeList.map((e, i) => (
-                    <Text
-                      key={i}
-                      style={[
-                        styles.rowEntry,
+                    <Text key={i}
+                      style={[styles.rowEntry,
                         {backgroundColor: props.selectIndex === i ? "orange" : "#B1C6E1"}
                       ]}
                       onPress={() => props.setSelectIndex(i)}
                     >
-                      {displayTime(
-                        e,
-                        e.startTime + props.washTime + props.dryTime
-                      )}
+                      {displayTime(e, e.startTime + props.washTime + props.dryTime)}
                     </Text>
                   ))}
               </View>
             </View>
             <View style={styles.rectWrapper}>
-              <Text style={styles.startEnd}>
-                Price
-              </Text>
+              <Text style={styles.startEnd}>Price</Text>
               <View style={styles.rectangle}>
                 {props.timeList &&
                   props.timeList.map((e, i) => (
                     <Text key={i}
-                      style={[
-                        styles.rowEntry,
+                      style={[styles.rowEntry,
                         {backgroundColor: props.selectIndex === i ? "orange" : "#B1C6E1"}
                       ]}
                       onPress={() => props.setSelectIndex(i)}
@@ -337,16 +295,16 @@ export default function Schedule(props) {
         </View>
       </View>
       <Pressable
-        style={styles.remindButton}
+        style={[styles.remindButton, styles.bottomButton]}
         onPress={() => postNotification()}
       >
-        <Text style={styles.buttonOne}>Remind Me</Text>
+        <Text style={styles.bottomButtonText}>Remind Me</Text>
       </Pressable>
       <Pressable
-        style={styles.energyDataButton}
+        style={[styles.energyDataButton, styles.bottomButton]}
         onPress={() => props.setPage("graph")}
       >
-        <Text style={styles.buttonTwo}>Energy Data</Text>
+        <Text style={[styles.bottomButtonText, {color: "white"}]}>Energy Data</Text>
       </Pressable>
     </SafeAreaView>
   );
@@ -400,21 +358,6 @@ const styles = StyleSheet.create({
   buttons: {
     flexDirection: "column",
   },
-  buttonOne: {
-    flexDirection: "row",
-    textAlign: "center",
-    fontFamily: "Nunito-SemiBold",
-    fontSize: 24,
-    bottom: -18,
-  },
-  buttonTwo: {
-    flexDirection: "row",
-    textAlign: "center",
-    fontFamily: "Nunito-SemiBold",
-    fontSize: 24,
-    bottom: -18,
-    color: "white"
-  },
   backButtonRow: {
     flexDirection: "row", 
     alignItems: "center", 
@@ -430,29 +373,33 @@ const styles = StyleSheet.create({
     fontSize: 48,
     marginRight: "23%",
   },
-  remindButton: {
-    backgroundColor: "#B1C6E1",
+  bottomButton: {
     width: 250,
     height: 70,
-    marginTop: 35,
     borderRadius: 50,
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  bottomButtonText: {
+    fontFamily: "Nunito-SemiBold",
+    fontSize: 24,
+  },
+  remindButton: {
+    backgroundColor: "#B1C6E1",
+    marginTop: 35,
   },
   energyDataButton: {
     backgroundColor: "#31864B",
-    width: 250,
-    height: 70,
     marginTop: 25,
-    borderRadius: 50,
   },
   buttonRowButton: {
-    backgroundColor: "green", 
     borderRadius: 50, 
     paddingHorizontal: 10, 
     paddingVertical: 5, 
-    marginBottom: 5
   },
   buttonRowButtonText: {
-    fontSize: 16, fontFamily: "Nunito-Regular", color: "white"
+    fontSize: 16, 
+    fontFamily: "Nunito-Regular", 
   },
   startEnd: {
     fontSize: 20,

@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, View, Button } from "react-native";
+import { StyleSheet } from "react-native";
 import { useState, useEffect } from "react";
 import Graph from "./pages/Graph";
 import OpenScreen from "./pages/openScreen";
@@ -34,8 +34,8 @@ export default function App() {
   // floor(minutes since midnight / 30). Updated whenever switching between pages/components.
   const [nowInterval, setNowInterval] = useState(0);
 
-
-  useEffect( () => {
+  // when opening the app, call the API among other things
+  useEffect(() => {
     Notifications.registerRemoteNotifications();
     const time = new Date();
     setNowInterval(Math.floor((time.getHours() * 60 + time.getMinutes()) / 30));
@@ -50,6 +50,7 @@ export default function App() {
         res.today && setRenewPoints(res.today)
         res.tomorrow && setNextRenewPoints(res.tomorrow)
       })
+    // read values from persistent storage 
     async function loadInValues() {
       try {
         const storedDryPower = await AsyncStorage.getItem('@dryerPower')
@@ -61,7 +62,6 @@ export default function App() {
         storedDryTime && setDryTime(parseInt(storedDryTime))
         storedWashTime && setWashTime(parseInt(storedWashTime))
       } catch(e) {
-        // read error
       }
     }
     loadInValues()
@@ -69,22 +69,23 @@ export default function App() {
 
   // filter out obsolete intervals from the past 
   useEffect(() => {
-    setAvailability([...availability
-                      .filter(e => e[0] + e[1] > nowInterval)
-                      .map(e => {
-                        const newStart = Math.max(e[0], nowInterval*30)
-                        return [newStart, e[0] + e[1] - newStart]
-                      })
-                    ])
+    setAvailability([
+      ...availability
+      .filter(e => e[0] + e[1] > nowInterval)
+      .map(e => {
+        const newStart = Math.max(e[0], nowInterval*30)
+        return [newStart, e[0] + e[1] - newStart]
+      })
+    ])
   }, [nowInterval])
+  
   return page === "graph" ? (
     <Graph
       availability={day === "currentDay" ? availability : nextAvailability}
       setPage={setPage}
-      points={points.filter(
-        (e) =>
-          Math.floor(e.hoursElapsed * 2) >=
-          (day === "currentDay" ? nowInterval : 0)
+      points={points.filter((e) =>
+        Math.floor(e.hoursElapsed * 2) >=
+        (day === "currentDay" ? nowInterval : 0)
       )}
       renewPoints={
         day === "currentDay"
@@ -105,24 +106,16 @@ export default function App() {
         (e) => Math.floor(e.hour * 2) >= nowInterval
       )}
       nextRenewPoints={nextRenewPoints}
-      day={day}
-      setDay={setDay}
-      nowInterval={nowInterval}
-      setNowInterval={setNowInterval}
-      washTime={washTime}
-      washPower={washPower}
-      dryTime={dryTime}
-      dryPower={dryPower}
+      day={day} setDay={setDay}
+      nowInterval={nowInterval} setNowInterval={setNowInterval}
+      washTime={washTime} washPower={washPower}
+      dryTime={dryTime} dryPower={dryPower}
       todayAvailability={availability}
       tomorrowAvailability={nextAvailability}
-      timeList={timeList}
-      setTimeList={setTimeList}
-      selectIndex={selectIndex}
-      setSelectIndex={setSelectIndex}
-      daysIncluded={daysIncluded}
-      setDaysIncluded={setDaysIncluded}
-      optimizeVal={optimizeVal}
-      setOptimizeVal={setOptimizeVal}
+      timeList={timeList} setTimeList={setTimeList}
+      selectIndex={selectIndex} setSelectIndex={setSelectIndex}
+      daysIncluded={daysIncluded} setDaysIncluded={setDaysIncluded}
+      optimizeVal={optimizeVal} setOptimizeVal={setOptimizeVal}
       
     />
   ) : page === "myinfo" ? (
@@ -132,18 +125,13 @@ export default function App() {
       setFreeIntervals={
         day === "currentDay" ? setAvailability : setNextAvailability
       }
-      washTime={washTime}
-      washPower={washPower}
-      dryTime={dryTime}
-      dryPower={dryPower}
-      setWashTime={setWashTime}
-      setWashPower={setWashPower}
-      setDryTime={setDryTime}
-      setDryPower={setDryPower}
+      washTime={washTime} setWashTime={setWashTime}
+      washPower={washPower} setWashPower={setWashPower}
+      dryTime={dryTime} setDryTime={setDryTime}
+      dryPower={dryPower} setDryPower={setDryPower}
       nowInterval={day === "currentDay" ? nowInterval : 0}
       setNowInterval={setNowInterval}
-      day={day}
-      setDay={setDay}
+      day={day} setDay={setDay}
     />
   ) : (
     <OpenScreen setPage={setPage} setNowInterval={setNowInterval} />

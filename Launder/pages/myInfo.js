@@ -1,14 +1,5 @@
 import React from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  TouchableOpacity,
-  Button,
-  SafeAreaView,
-  TextInput,
-  ScrollView,
+import { StyleSheet, Text, View, Image, TouchableOpacity, SafeAreaView, TextInput,
 } from "react-native";
 import { useState, useEffect } from "react";
 import AvailabilitySelector from "../components/AvailabilitySelector";
@@ -17,8 +8,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function myInfo(props) {
   const [availabilityShown, showAvailability] = useState(false);
-  //const [number, onChangeNumber] = React.useState(null);
-  //const [number2, onChangeNumber2] = React.useState(null);
 
   useEffect(() => {
     const time = new Date();
@@ -38,14 +27,14 @@ export default function myInfo(props) {
     }
   }
 
+  // write 4 numerical inputs to persistent storage when leaving the page
   async function goHome() {
     await setValuesAsync(props.dryPower, props.washPower, props.dryTime, props.washTime)
     .then(() => props.goHome())
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      
+    <SafeAreaView style={styles.container}>  
       <View style={styles.backButtonRow}>
       <TouchableOpacity
         style={styles.backButton}
@@ -58,8 +47,6 @@ export default function myInfo(props) {
       </TouchableOpacity>
       <Text style={styles.backButtonText}>My Info</Text>
       </View>
-
-      
       <Text
         onPress={() => showAvailability(!availabilityShown)}
         style={styles.headers}
@@ -115,8 +102,6 @@ export default function myInfo(props) {
 
 const styles = StyleSheet.create({
   container: {
-    //paddingTop: 40,
-    // paddingHorizontal: 20,
     flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
@@ -134,7 +119,6 @@ const styles = StyleSheet.create({
     borderRadius: 50,
   },
   backButton: {
-    //flexDirection: "row",
     left: 15,
     marginRight: "auto"
   },
